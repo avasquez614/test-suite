@@ -17,7 +17,8 @@ public class DeleteSiteAPITest {
 
 	private SecurityAPI securityAPI;
 	private SiteManagementAPI siteManagementAPI;
-
+	private String siteId="siteTestDeleteSiteAPITest";
+	
 	public DeleteSiteAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
 		JsonTester api = new JsonTester(apiConnectionManager.getProtocol(), apiConnectionManager.getHost(),
@@ -29,12 +30,12 @@ public class DeleteSiteAPITest {
 	@BeforeTest
 	public void beforeTest() {
 		securityAPI.logInIntoStudioUsingAPICall();
-		siteManagementAPI.testCreateSite();
+		siteManagementAPI.testCreateSite(siteId);
 	}
 
 	@Test(priority = 1)
-	public void testCreateSite() {
-		siteManagementAPI.testDeleteSite();
+	public void testDeleteSite() {
+		siteManagementAPI.testDeleteSite(siteId);
 	}
 
 	@AfterTest

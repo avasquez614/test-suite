@@ -18,7 +18,8 @@ public class SyncFromRepoAPITest {
 	private SecurityAPI securityAPI;
 	private SiteManagementAPI siteManagementAPI;
 	private RepoManagementAPI repoManagementAPI;
-
+	private String siteId="siteSyncFromRepoAPITest";
+	
 	public SyncFromRepoAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
 		JsonTester api = new JsonTester(apiConnectionManager.getProtocol(), apiConnectionManager.getHost(),
@@ -31,7 +32,7 @@ public class SyncFromRepoAPITest {
 	@BeforeTest
 	public void beforeTest() {
 		securityAPI.logInIntoStudioUsingAPICall();
-		siteManagementAPI.testCreateSite();
+		siteManagementAPI.testCreateSite(siteId);
 	}
 
     @Test(priority=1)
@@ -52,7 +53,7 @@ public class SyncFromRepoAPITest {
     
     @AfterTest
 	public void afterTest() {
-		siteManagementAPI.testDeleteSite();
+		siteManagementAPI.testDeleteSite(siteId);
 		securityAPI.logOutFromStudioUsingAPICall();
 	}
     

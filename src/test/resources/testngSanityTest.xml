@@ -12,6 +12,10 @@
 				name="org.craftercms.studio.test.cases.sanitytesttestcases.VerifyNoErrorsInHomePageOfSiteTest" />
 			<class
 				name="org.craftercms.studio.test.cases.sitestestcases.DeleteSiteTest" />
+			<class
+				name="org.craftercms.studio.test.cases.sanitytesttestcases.AutomateLoginInToStudio" />
+				<class
+				name="org.craftercms.studio.test.cases.sanitytesttestcases.AutomateCreatingSiteUsingWebsiteEditorialBlueprint" /> 
 		</classes>
 	</test> <!-- Test -->
 </suite> <!-- Suite -->

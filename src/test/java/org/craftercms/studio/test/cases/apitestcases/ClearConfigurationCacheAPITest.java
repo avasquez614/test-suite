@@ -11,7 +11,8 @@ import org.testng.annotations.Test;
 public class ClearConfigurationCacheAPITest {
 	private SecurityAPI securityAPI;
 	private SiteManagementAPI siteManagementAPI;
-
+	private String siteId="siteTestClearConfigurationCacheAPITest";
+	
 	public ClearConfigurationCacheAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
 		JsonTester api = new JsonTester(apiConnectionManager.getProtocol(), apiConnectionManager.getHost(),
@@ -23,7 +24,7 @@ public class ClearConfigurationCacheAPITest {
 	@BeforeTest
 	public void beforeTest() {
 		securityAPI.logInIntoStudioUsingAPICall();
-		siteManagementAPI.testCreateSite();
+		siteManagementAPI.testCreateSite(siteId);
 	}
 
 	@Test(priority = 1)
@@ -33,7 +34,7 @@ public class ClearConfigurationCacheAPITest {
 	
 	@AfterTest
 	public void afterTest() {
-		siteManagementAPI.testDeleteSite();
+		siteManagementAPI.testDeleteSite(siteId);
 		securityAPI.logOutFromStudioUsingAPICall();
 	}
 }

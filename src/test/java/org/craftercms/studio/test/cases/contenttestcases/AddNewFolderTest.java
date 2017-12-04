@@ -83,7 +83,8 @@ public class AddNewFolderTest {
 
 		// expand pages folder
 		dashboardPage.expandPagesTree();
-
+		
+		driverManager.waitUntilPageLoad();
 		// right click to see the the menu
 		dashboardPage.rightClickToFolderOnHome();
 

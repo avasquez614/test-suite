@@ -16,7 +16,9 @@ public class GetConfigurationAPITest {
 
 	private SecurityAPI securityAPI;
 	private SiteManagementAPI siteManagementAPI;
-
+	private String siteId="siteGetConfigurationAPITest";
+	
+	
 	public GetConfigurationAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
 		JsonTester api = new JsonTester(apiConnectionManager.getProtocol(), apiConnectionManager.getHost(),
@@ -28,7 +30,7 @@ public class GetConfigurationAPITest {
 	@BeforeTest
 	public void beforeTest() {
 		securityAPI.logInIntoStudioUsingAPICall();
-		siteManagementAPI.testCreateSite();
+		siteManagementAPI.testCreateSite(siteId);
 		
 	}
 
@@ -39,7 +41,7 @@ public class GetConfigurationAPITest {
 
 	@AfterTest
 	public void afterTest() {
-		siteManagementAPI.testDeleteSite();
+		siteManagementAPI.testDeleteSite(siteId);
 		securityAPI.logOutFromStudioUsingAPICall();
 	}
 

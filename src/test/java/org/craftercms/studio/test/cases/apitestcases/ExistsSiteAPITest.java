@@ -16,7 +16,8 @@ public class ExistsSiteAPITest {
 
 	private SecurityAPI securityAPI;
 	private SiteManagementAPI siteManagementAPI;
-
+	private String siteId="siteTestExistsSiteAPITest";
+	
 	public ExistsSiteAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
 		JsonTester api = new JsonTester(apiConnectionManager.getProtocol(), apiConnectionManager.getHost(),
@@ -28,7 +29,7 @@ public class ExistsSiteAPITest {
 	@BeforeTest
 	public void beforeTest() {
 		securityAPI.logInIntoStudioUsingAPICall();
-		siteManagementAPI.testCreateSite();
+		siteManagementAPI.testCreateSite(siteId);
 	}
 
 	@Test(priority = 1)
@@ -38,7 +39,7 @@ public class ExistsSiteAPITest {
 
 	@AfterTest
 	public void afterTest() {
-		siteManagementAPI.testDeleteSite();
+		siteManagementAPI.testDeleteSite(siteId);
 		securityAPI.logOutFromStudioUsingAPICall();
 	}
 

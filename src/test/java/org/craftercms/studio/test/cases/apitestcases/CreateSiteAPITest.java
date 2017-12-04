@@ -16,6 +16,7 @@ public class CreateSiteAPITest {
 
 	private SecurityAPI securityAPI;
 	private SiteManagementAPI siteManagementAPI;
+	private String siteId="siteTestCreateSiteAPITest";
 
 	public CreateSiteAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
@@ -33,7 +34,7 @@ public class CreateSiteAPITest {
 
 	@Test(priority = 1)
 	public void testCreateSite() {
-		siteManagementAPI.testCreateSite();
+		siteManagementAPI.testCreateSite(siteId);
 	}
 
 	@Test(priority = 2)
@@ -48,7 +49,7 @@ public class CreateSiteAPITest {
 
 	@AfterTest
 	public void afterTest() {
-		siteManagementAPI.testDeleteSite();
+		siteManagementAPI.testDeleteSite(siteId);
 		securityAPI.logOutFromStudioUsingAPICall();
 	}
 

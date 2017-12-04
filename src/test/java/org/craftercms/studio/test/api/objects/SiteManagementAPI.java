@@ -18,7 +18,7 @@ public class SiteManagementAPI extends BaseAPI {
 		super(api, apiConnectionManager);
 	}
 
-	public void testCreateSite() {
+	public void testCreateSite(String siteId) {
 		Map<String, Object> json = new HashMap<>();
 		json.put("site_id", siteId);
 		json.put("description", description);
@@ -27,6 +27,7 @@ public class SiteManagementAPI extends BaseAPI {
 				.header("Location",
 						is(headerLocationBase + "/studio/api/1/services/api/1/site/get.json?site_id=" + siteId))
 				.json("$.message", is("OK")).debug();
+		this.setSiteId(siteId);;
 	}
 
 	public void testCreateSiteInvalidParameters() {
@@ -51,7 +52,7 @@ public class SiteManagementAPI extends BaseAPI {
 				.json("$.message", is("Site already exists")).debug();
 	}
 
-	public void testDeleteSite() {
+	public void testDeleteSite(String siteId) {
 		Map<String, Object> json = new HashMap<>();
 		json.put("siteId", siteId);
 		api.post("/studio/api/1/services/api/1/site/delete-site.json").json(json).execute().status(200);

@@ -436,10 +436,11 @@ public class ChangeStateOfPreviousPublishedContent {
 		// login to application with author user
 		loginPage.loginToCrafter("author", "author");
 
-		this.driverManager.getDriver().switchTo().activeElement();
+		//this.driverManager.getDriver().switchTo().activeElement();
 
 		// Go to the site page
-
+        this.driverManager.waitUntilPageLoad();
+        
 		homePage.goToPreviewPage();
 		String siteDropdownElementXPath = sidebarMenuOption;
 

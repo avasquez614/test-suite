@@ -20,7 +20,7 @@ public class GetUserPerSiteAPITest {
 	private UserManagementAPI userManagementAPI;
 	private SiteManagementAPI siteManagementAPI;
 	private GroupManagementAPI groupManagementAPI;
-	
+	private String siteId="siteGetUserPerSiteAPITest";
 
 	public GetUserPerSiteAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
@@ -36,7 +36,7 @@ public class GetUserPerSiteAPITest {
 	public void beforeTest() {
 		securityAPI.logInIntoStudioUsingAPICall();
 		userManagementAPI.testCreateUser();
-		siteManagementAPI.testCreateSite();
+		siteManagementAPI.testCreateSite(siteId);
 		groupManagementAPI.testCreateStudioGroup01(siteManagementAPI.getSiteId());
 		groupManagementAPI.testCreateStudioGroup02(siteManagementAPI.getSiteId());
 		groupManagementAPI.testAddUserToGroup01(userManagementAPI.getNewusername(), siteManagementAPI.getSiteId());
@@ -51,7 +51,7 @@ public class GetUserPerSiteAPITest {
 	@AfterTest
 	public void afterTest() {
 		userManagementAPI.testDeleteUser();
-		siteManagementAPI.testDeleteSite();
+		siteManagementAPI.testDeleteSite(siteId);
 		securityAPI.logOutFromStudioUsingAPICall();
 	}
 	

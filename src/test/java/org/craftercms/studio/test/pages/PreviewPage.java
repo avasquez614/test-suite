@@ -527,6 +527,7 @@ public class PreviewPage {
 		driverManager.getDriver().switchTo().defaultContent();
 
 		// go to dashboard
+		this.driverManager.getDriver().navigate().refresh();
 		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("id", studioLogo).click();
 
 	}
@@ -638,6 +639,7 @@ public class PreviewPage {
 			driverManager.getDriver().switchTo().defaultContent();
 			driverManager.getDriver().switchTo().activeElement();
 			
+			driverManager.waitUntilPageLoad();
 			this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", dependenciesSelector);
 			
 			this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable(

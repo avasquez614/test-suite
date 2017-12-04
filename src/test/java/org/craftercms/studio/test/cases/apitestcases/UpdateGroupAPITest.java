@@ -17,6 +17,7 @@ public class UpdateGroupAPITest {
 	private SecurityAPI securityAPI;
 	private SiteManagementAPI siteManagementAPI;
 	private GroupManagementAPI groupManagementAPI;
+	private String siteId="siteUpdateGroupAPITest";
 
 	public UpdateGroupAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
@@ -30,7 +31,7 @@ public class UpdateGroupAPITest {
 	@BeforeTest
 	public void beforeTest() {
 		securityAPI.logInIntoStudioUsingAPICall();
-		siteManagementAPI.testCreateSite();
+		siteManagementAPI.testCreateSite(siteId);
 		groupManagementAPI.testCreateStudioGroup01(siteManagementAPI.getSiteId());
 	}
 
@@ -52,7 +53,7 @@ public class UpdateGroupAPITest {
 
 	@AfterTest
 	public void afterTest() {
-		siteManagementAPI.testDeleteSite();
+		siteManagementAPI.testDeleteSite(siteId);
 		securityAPI.logOutFromStudioUsingAPICall();
 	}
 

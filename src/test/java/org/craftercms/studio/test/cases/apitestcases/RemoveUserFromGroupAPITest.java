@@ -19,7 +19,8 @@ public class RemoveUserFromGroupAPITest {
 	private SiteManagementAPI siteManagementAPI;
 	private GroupManagementAPI groupManagementAPI;
 	private UserManagementAPI userManagementAPI;
-
+	private String siteId="siteRemoveUserFromGroupAPITest";
+	
 	public RemoveUserFromGroupAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
 		JsonTester api = new JsonTester(apiConnectionManager.getProtocol(), apiConnectionManager.getHost(),
@@ -33,7 +34,7 @@ public class RemoveUserFromGroupAPITest {
 	@BeforeTest
 	public void beforeTest() {
 		securityAPI.logInIntoStudioUsingAPICall();
-		siteManagementAPI.testCreateSite();
+		siteManagementAPI.testCreateSite(siteId);
 		groupManagementAPI.testCreateStudioGroup01(siteManagementAPI.getSiteId());
 		userManagementAPI.testCreateUser();
 		groupManagementAPI.testAddUserToGroup01(userManagementAPI.getNewusername(), siteManagementAPI.getSiteId());
@@ -63,7 +64,7 @@ public class RemoveUserFromGroupAPITest {
 	@AfterTest
 	public void afterTest() {
 		userManagementAPI.testDeleteUser();
-		siteManagementAPI.testDeleteSite();
+		siteManagementAPI.testDeleteSite(siteId);
 		securityAPI.logOutFromStudioUsingAPICall();
 	}
 	

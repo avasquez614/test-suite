@@ -18,7 +18,7 @@ public class GetGroupAPITest {
 	private SecurityAPI securityAPI;
 	private SiteManagementAPI siteManagementAPI;
 	private GroupManagementAPI groupManagementAPI;
-
+	private String siteId="siteGetGroupAPITest";
 
 	public GetGroupAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
@@ -32,7 +32,7 @@ public class GetGroupAPITest {
 	@BeforeTest
 	public void beforeTest() {
 		securityAPI.logInIntoStudioUsingAPICall();
-		siteManagementAPI.testCreateSite();
+		siteManagementAPI.testCreateSite(siteId);
 		groupManagementAPI.testCreateStudioGroup01(siteManagementAPI.getSiteId());
 	}
 
@@ -53,7 +53,7 @@ public class GetGroupAPITest {
 
 	@AfterTest
 	public void afterTest() {
-		siteManagementAPI.testDeleteSite();
+		siteManagementAPI.testDeleteSite(siteId);
 		securityAPI.logOutFromStudioUsingAPICall();
 	}
 

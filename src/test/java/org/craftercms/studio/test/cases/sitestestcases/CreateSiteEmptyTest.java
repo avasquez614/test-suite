@@ -54,10 +54,6 @@ public class CreateSiteEmptyTest {
 				.getProperty("complexscenarios.general.sitedropdown");
 		createSiteButtonXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sites.createsitebutton");
-//		topNavDeleteOption = uIElementsPropertiesManager.getSharedUIElementsLocators()
-//				.getProperty("general.deletetopnavoption");
-//		topNavEditOption= uIElementsPropertiesManager.getSharedUIElementsLocators()
-//				.getProperty("general.edittopnavoption");
 	}
 
 	@AfterClass

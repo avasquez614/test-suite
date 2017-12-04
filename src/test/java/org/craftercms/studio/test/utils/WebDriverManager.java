@@ -190,7 +190,7 @@ public class WebDriverManager {
 							ExpectedConditions.visibilityOfElementLocated(By.cssSelector(selectorValue)),
 							ExpectedConditions.elementToBeClickable(By.cssSelector(selectorValue)))))
 				element = this.driver.findElement(By.cssSelector(selectorValue));
-
+			
 			break;
 		case "xpath":
 			if ((new WebDriverWait(this.driver, this.defaultTimeOut))
