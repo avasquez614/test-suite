@@ -184,6 +184,55 @@ public class WebDriverManager {
 
 	public void goToUrl(String url){
 		driver.get(url);
+		waitUntilPageLoad();
+	}
+
+	public String fromSshToHttps(String sshUrl) {
+		String goToUrl = sshUrl.replace("https://", "git@");
+		String[] url = goToUrl.split("/");
+		return goToUrl.replace("/" + url[1], ":" + url[1]);
+	}
+
+	public void goToWebRepoUrlFile(String url, String pathUrl) {
+		String goToUrl = url;
+		if (!goToUrl.startsWith("https")) {
+			goToUrl = fromSshToHttps(url);
+		}
+		goToUrl = goToUrl.replace(".git", "");
+
+		if (goToUrl.contains("bitbucket")) {
+			goToUrl = goToUrl + "/src";
+		}
+		else {
+			goToUrl = goToUrl + "/blob";
+		}
+		goToUrl = goToUrl + "/master/" + pathUrl;
+		logger.debug("Going to the git repo url {}", goToUrl);
+		driver.get(goToUrl);
+	}
+
+	public void clickRawGitRepoWeb(String repoUrl) {
+		String gitlabRawCss = ".fa.fa-file-code-o";
+		String bitbucketFileActionsXpath = ".//*[@aria-label='Source file actions']";
+		if (repoUrl.contains("github")) {
+			clickLinkByText("Raw");
+		}
+		else {
+			if(repoUrl.contains("gitlab")) {
+				logger.info("clickcin the gitlab raw");
+				clickElement("cssselector", gitlabRawCss);
+				logger.info("done clickin gitlab rab");
+			}
+			else {
+				clickElement("xpath", bitbucketFileActionsXpath);
+				clickLinkByText("Open raw");
+			}
+			ArrayList<String> openTabs = new ArrayList<>(driver.getWindowHandles());
+			for(String s1: openTabs){
+				logger.info("the tabs are {},", s1);
+			}
+			driver.switchTo().window(openTabs.get(1));
+		}
 	}
 
 	public void initializeLocators() {
@@ -313,9 +362,13 @@ public class WebDriverManager {
 	}
 
 	public void waitUntilElementIsNotDisplayed(String typeOfSelector, String selectorValue) {
-		logger.debug("Waiting for element to be hidden: {} , {}", typeOfSelector, selectorValue);
+		waitUntilElementIsNotDisplayed(typeOfSelector, selectorValue, defaultTimeOut);
+	}
+
+	public void waitUntilElementIsNotDisplayed(String typeOfSelector, String selectorValue, int timeOut) {
+		logger.info("Waiting for element to be hidden: {} , {}", typeOfSelector, selectorValue);
 		By selector = getSelector(typeOfSelector, selectorValue);
-		new WebDriverWait(driver, defaultTimeOut).until(ExpectedConditions
+		new WebDriverWait(driver, timeOut).until(ExpectedConditions
 				.refreshed(ExpectedConditions.invisibilityOf(driver.findElement(selector))));
 	}
 
@@ -329,12 +382,10 @@ public class WebDriverManager {
 		logger.debug("Waiting for Popup to be hidden");
 		WebElement popupElement = null;
 		try {
-			popupElement = driverWaitUntilElementIsPresentAndDisplayed("id", "cstudio-wcm-popup-div_mask");
-		} catch (TimeoutException e) {
+			waitUntilElementIsNotDisplayed("id", "cstudio-wcm-popup-div_mask");
+		} catch (Exception e) {
 			logger.info("Popup is already closed");
-			return;
 		}
-		waitUntilElementIsHidden(popupElement);
 	}
 
 	public void waitUntilAttributeIs(String selectorType, String selectorValue, String attributeName,
@@ -580,13 +631,9 @@ public class WebDriverManager {
 	}
 
 	public boolean elementHasChildsByXPath(String childsLocator) {
-		boolean hasChilds = false;
 		List<WebElement> childs = this.driver.findElements(By.xpath(childsLocator));
-
-		if (!(childs.isEmpty()))
-			hasChilds = true;
-
-		return hasChilds;
+		logger.debug("Founded {} elements from xpath locator {}", childs.size(), childsLocator);
+		return !childs.isEmpty();
 	}
 
 	public void moveMouseToElement(WebElement toElement) {
@@ -621,19 +668,6 @@ public class WebDriverManager {
 		}
 	}
 
-	public boolean isLoginDisplayed() {
-		boolean isLoginDisplayed = false;
-		WebElement body = this.driverWaitUntilElementIsPresentAndDisplayed("tagname", "body");
-
-		logger.debug("Checking if login dialog is closed");
-
-		if (body.getAttribute("class").contains("modal-open")) {
-			isLoginDisplayed = true;
-		}
-
-		return isLoginDisplayed;
-	}
-
 	public void waitUntilSidebarOpens() {
 		logger.debug("Waiting for sidebar to open");
 		this.waitUntilAttributeContains("xpath", sideBarDropDownWrapper, "class", "site-dropdown-open");
@@ -656,9 +690,12 @@ public class WebDriverManager {
 		waitUntilElementIsRemoved(element);
 	}
 	
-	public void waitUntilAddUserCreatedNotificationCloses() {
+	public void waitUntilAddUserCreatedNotificationCloses(String username) {
 		logger.debug("Waiting for notification modal to close");
+		String expectedNotificationMsg = "'" + username + "' created.";
 		WebElement element = this.waitUntilElementIsDisplayed("xpath", userCreatedNotificationModal);
+		Assert.assertEquals(getText("xpath", "(" + userCreatedNotificationModal + "//p/span)[2]"),
+				expectedNotificationMsg, "Add User Notification message is not correct");
 		waitUntilElementIsRemoved(element);
 	}
 	
@@ -883,25 +920,27 @@ public class WebDriverManager {
 
 	public void sendTextByLineJS(String selectorType, String selectorValue, String filePath){
 		WebElement input = waitUntilElementIsClickable(selectorType, selectorValue);
-		String scrollByJS = "document.getElementById('%s').scrollTop = document.getElementById('%s').scrollHeight;";
-		input.click();
-		List<String> result = new ArrayList<>();
-		try {
-			 result = Files.readAllLines(Paths.get(filePath));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		if (!filePath.equals("")) {
+			String scrollByJS = "document.getElementById('%s').scrollTop = document.getElementById('%s').scrollHeight;";
+			input.click();
+			List<String> result = new ArrayList<>();
+			try {
+				result = Files.readAllLines(Paths.get(filePath));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
-		//add \n newline to all lines expect for last one
-		for(int i = 0; i < result.size(); i++){
-			if (i == result.size() - 1) {
-				sendTextByIdJS(selectorValue, result.get(i));
+			//add \n newline to all lines expect for last one
+			for(int i = 0; i < result.size(); i++){
+				if (i == result.size() - 1) {
+					sendTextByIdJS(selectorValue, result.get(i));
+				}
+				else {
+					sendTextByIdJS(selectorValue, result.get(i) + "\\n");
+				}
 			}
-			else {
-				sendTextByIdJS(selectorValue, result.get(i) + "\\n");
-			}
+			((JavascriptExecutor) driver).executeScript(String.format(scrollByJS, selectorValue, selectorValue));
 		}
-		((JavascriptExecutor) driver).executeScript(String.format(scrollByJS, selectorValue, selectorValue));
 		//send a char and remove it to enable the text sent by javascript
 		input.sendKeys("a");
 		input.sendKeys(Keys.BACK_SPACE);
@@ -917,7 +956,7 @@ public class WebDriverManager {
 		input.clear();
 		input.sendKeys(text);
 		waitUntilAttributeIs(selectorType, selectorValue, "value",
-				text.toLowerCase().replaceAll("[^a-zA-Z0-9_-]", ""));
+				text.toLowerCase().replaceAll("[^a-zA-Z0-9]", ""));
 	}
 
 	public void usingContextMenu(Runnable actions, String menuOption) {
@@ -1264,19 +1303,13 @@ public class WebDriverManager {
 			this.clickElement("xpath", selectorValue);
 	}
 
-	public void fileUploadUsingSendKeys(String locator, String filePath) {
-		By selector = getSelector("xpath", locator);
-		new WebDriverWait(driver, defaultTimeOut).until(ExpectedConditions.elementToBeClickable(selector));
-		WebElement element;
-
-		try {
-			element = driver.findElement(selector);
-		} catch (NoSuchElementException e) {
-			logger.warn("Element has been removed {}, {}", "xpath", locator);
-			element = waitUntilElementIsDisplayed("xpath", locator);
-		}
-
-		element.sendKeys(filePath);
+	public void fileUploadUsingSendKeys(String locatorInput, String locatorBtn, String filePath) {
+		By selectorInput = getSelector("cssselector", locatorInput);
+		By selectorButton = getSelector("cssselector", locatorBtn);
+		new WebDriverWait(driver, defaultTimeOut).until(ExpectedConditions.elementToBeClickable(selectorButton));
+		new WebDriverWait(driver, defaultTimeOut).until(ExpectedConditions.presenceOfElementLocated(selectorInput));
+		driver.findElement(selectorInput).sendKeys(filePath);
+		driver.findElement(selectorButton).click();
 	}
 
 	public void waitForBulkPublish(int waitTimeOut) {
@@ -1813,5 +1846,23 @@ public class WebDriverManager {
 			actions.sendKeys(Keys.DELETE);
 		}
 		actions.build().perform();
+	}
+
+	public void clickButtonByText(String text) {
+		clickElement("xpath", String.format("//button[text()='%s']", text));
+	}
+
+	public void clickLinkByText(String text) {
+		clickElement("xpath", String.format("//*[text()='%s']", text));
+	}
+
+
+	public String getText(String selectorType, String selectorValue) {
+		return waitUntilElementIsDisplayed(selectorType, selectorValue).getText();
+	}
+
+	public boolean isTextPresentPageSource(String textToSearch) {
+		logger.debug("Searching for the text in page source {}", textToSearch);
+		return driver.getPageSource().contains(textToSearch);
 	}
 }

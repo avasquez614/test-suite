@@ -196,9 +196,7 @@ public class PreviewPage {
 
 	// Click on admin console link
 	public void clickAdminConsoleOption() {
-		WebElement adminConsoleOption = this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayed("xpath", adminConsole);
-		adminConsoleOption.click();
+		driverManager.clickElement("xpath", adminConsole);
 	}
 
 	public void goToAdminConsolePage() {
@@ -452,8 +450,7 @@ public class PreviewPage {
 		// Show site content panel
 		this.driverManager.clickElement("xpath", siteDropdownElementXPath);
 		// go to admin console page
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", adminConsoleXpath)
-				.click();
+		this.driverManager.clickElement("xpath", adminConsoleXpath);
 		// select content types
 		siteConfigPage.selectContentTypeOption();
 		// open content types
@@ -1945,5 +1942,10 @@ public class PreviewPage {
 		Assert.assertTrue(this.driverManager.getDriver().findElement(By.xpath(siteStatusIcon))
 				.getAttribute("class").contains("undefined live"));
 
+	}
+
+	public PreviewPage clickSidebar() {
+		driverManager.clickElement("xpath", siteDropdownElementXPath);
+		return this;
 	}
 }

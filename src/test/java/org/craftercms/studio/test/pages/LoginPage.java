@@ -20,8 +20,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
 import org.craftercms.studio.test.utils.WebDriverManager;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 /**
  *
@@ -35,6 +35,9 @@ public class LoginPage {
 	private String userNameXpath;
 	private String passwordXpath;
 	private String loginXpath;
+	private String loginLanguageSelector;
+	private String userName;
+	private String password;
 	private static Logger logger = LogManager.getLogger(LoginPage.class);
 
 	public LoginPage(WebDriverManager driverManager,
@@ -47,6 +50,9 @@ public class LoginPage {
 		passwordXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("login.password");
 		loginXpath = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("login.login");
+		loginLanguageSelector = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("login.languageselector");
+		userName = getDriverManager().getConstantsPropertiesManager().getSharedExecutionConstants().getProperty("crafter.username");
+		password = getDriverManager().getConstantsPropertiesManager().getSharedExecutionConstants().getProperty("crafter.password");
 
 	}
 	// Set user name in textbox
@@ -68,14 +74,16 @@ public class LoginPage {
 
 	// Click on login button
 	public void clickLogin() {
-		WebElement loginButton = this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", loginXpath);
-		loginButton.click();
+		driverManager.clickElement("xpath", loginXpath);
+	}
 
-		this.driverManager.waitForAnimation();
-		if (this.driverManager.isLoginDisplayed()) {
-			driverManager.clickElement("xpath", loginXpath);
-		}
+	// Login to crafter
+	public void loginToCrafter() {
+		logger.info("Login into Crafter with admin user");
+		setUserName(userName);
+		setPassword(password);
+		clickLogin();
+		driverManager.waitUntilLoginCloses();
 	}
 
 	// Login to crafter
@@ -111,4 +119,13 @@ public class LoginPage {
 		this.driverManager = driverManager;
 	}
 
+	public void setLanguage(String lang) {
+		Select select = new Select(getDriverManager().findElement("xpath", loginLanguageSelector));
+		select.selectByVisibleText(lang);
+	}
+
+	public String getSelectedLanguage() {
+		Select select = new Select(getDriverManager().findElement("xpath", loginLanguageSelector));
+		return select.getFirstSelectedOption().getText();
+	}
 }
