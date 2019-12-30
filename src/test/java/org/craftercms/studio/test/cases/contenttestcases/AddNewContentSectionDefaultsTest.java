@@ -1,16 +1,30 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.contenttestcases;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.DashboardPage;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.craftercms.studio.test.cases.StudioBaseTest;
+
 
 /**
  * 
@@ -18,49 +32,33 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class AddNewContentSectionDefaultsTest {
-
-	private WebDriverManager driverManager;
-	private LoginPage loginPage;
-	private HomePage homePage;
-	private DashboardPage dashboardPage;
+public class AddNewContentSectionDefaultsTest extends StudioBaseTest {
 
 	private String userName;
 	private String password;
 	private String createFormFrameElementCss;
-	private String createFormSaveAndCloseElementId;
+	private String createFormSaveAndCloseElement;
 	private String siteDropDownXpath;
 	private String sectionDefaultsXpath;
-	
+	private String siteDropdownListElementXPath;
+	private static Logger logger = LogManager.getLogger(AddNewContentSectionDefaultsTest.class);
 
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager UIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-		
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-		
-		this.loginPage = new LoginPage(driverManager, UIElementsPropertiesManager);
-		this.homePage = new HomePage(driverManager, UIElementsPropertiesManager);
-		this.dashboardPage = new DashboardPage(driverManager, UIElementsPropertiesManager);
-		
+	@Parameters({"testId", "blueprint"})
+	@BeforeMethod
+	public void beforeTest(String siteId, String blueprint) {
+		apiTestHelper.createSite(siteId, "", blueprint);
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		createFormFrameElementCss = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormFrameElementCss = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.createformframe");
-		createFormSaveAndCloseElementId = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormSaveAndCloseElement = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.saveandclosebutton");
-		siteDropDownXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		siteDropDownXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sitedropdown");
-		sectionDefaultsXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		sectionDefaultsXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sitecontent.sectiondefaults");
-	}
-
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
+		siteDropdownListElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.general.sitedropdownlielement");
 	}
 
 	public void createLevelDescriptorContent() {
@@ -79,49 +77,66 @@ public class AddNewContentSectionDefaultsTest {
 		dashboardPage.clickOKButton();
 
 		// Switch to the iframe
-		driverManager.getDriver().switchTo().defaultContent();
-		driverManager.getDriver().switchTo().frame(this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+		getWebDriverManager().getDriver().switchTo().defaultContent();
+		getWebDriverManager().getDriver().switchTo().frame(this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
 				"cssSelector", createFormFrameElementCss));
 
 		// save and close
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "id", createFormSaveAndCloseElementId).click();
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed( "xpath", createFormSaveAndCloseElement).click();
+
 	
 		// Switch back to the dashboard page
-		driverManager.getDriver().switchTo().defaultContent();
+		getWebDriverManager().getDriver().switchTo().defaultContent();
 
 		// reload page
-		driverManager.getDriver().navigate().refresh();
+		getWebDriverManager().getDriver().navigate().refresh();
 	}
 
-	@Test(priority = 0)
-	public void addLevelDescriptorItemUsingContextualClickOptionsTest() {
+	@Parameters({"testId"})
+	@Test()
+	public void addLevelDescriptorItemUsingContextualClickOptionsTest(String testId) {
 
 		// login to application
-
+		logger.info("Login into Crafter");
 		loginPage.loginToCrafter(userName, password);
+		
+		//Wait for login page closes
+		getWebDriverManager().waitUntilLoginCloses();
 
 		// go to preview page
-		homePage.goToPreviewPage();
+		homePage.goToPreviewPage(testId);
 
 		// Show site content panel
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "xpath", siteDropDownXpath)
+		if (!(this.getWebDriverManager().waitUntilElementIsPresent("xpath", siteDropdownListElementXPath)
+				.getAttribute("class").contains("site-dropdown-open")))
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed( "xpath", siteDropDownXpath)
 				.click();
 
 		// expand pages folder
+		logger.info("Expanding pages folder");
 		dashboardPage.expandPagesTree();
 		
 		// Expand Home Tree
+		logger.info("Expanding Home Tree");
+		this.getWebDriverManager().waitForAnimation();
 		dashboardPage.expandHomeTree();
 
 		// Create level descriptor content
+		logger.info("Creating level Descriptor content");
 		createLevelDescriptorContent();
 
 		// Assert of the test case is fine
-		String levelDescriptor = this.driverManager
+		String levelDescriptor = this.getWebDriverManager()
 				.driverWaitUntilElementIsPresentAndDisplayed( "xpath", sectionDefaultsXpath).getText();
 
-		Assert.assertEquals(levelDescriptor, "Section Defaults");
-
+		logger.info("Verify Level Descriptor was created");
+		Assert.assertTrue(levelDescriptor.contains("Section Defaults"),
+				"Level descriptors are not the same, check if the level descriptor was succesfully created");
 	}
 
+	@Parameters({"testId"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testId) {
+		apiTestHelper.deleteSite(testId);
+	}
 }

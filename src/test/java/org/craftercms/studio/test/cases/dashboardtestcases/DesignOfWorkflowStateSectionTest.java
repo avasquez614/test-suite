@@ -1,16 +1,29 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.dashboardtestcases;
 
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
+
 
 /**
  * 
@@ -19,13 +32,7 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class DesignOfWorkflowStateSectionTest {
-
-	private WebDriverManager driverManager;
-
-	private LoginPage loginPage;
-
-	private HomePage homePage;
+public class DesignOfWorkflowStateSectionTest extends StudioBaseTest {
 
 	private String userName;
 	private String password;
@@ -38,93 +45,84 @@ public class DesignOfWorkflowStateSectionTest {
 	private String deletedStateItem;
 	private String lockedStateItem;
 
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-
-		UIElementsPropertiesManager UIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-
-		this.loginPage = new LoginPage(driverManager, UIElementsPropertiesManager);
-		this.homePage = new HomePage(driverManager, UIElementsPropertiesManager);
-
+	@Parameters({"testId", "blueprint"})
+	@BeforeMethod
+	public void beforeTest(String testId, String blueprint) {
+		apiTestHelper.createSite(testId, "", blueprint);
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		workflowPanel = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		workflowPanel = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("dashboard.workflowpanel");
-		neverPublishedItem = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		neverPublishedItem = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("dashboard.workflowpanel.neverpublishedstate");
-		editedStateItem = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		editedStateItem = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("dashboard.workflowpanel.editedstate");
-		inWorkFlowItem = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		inWorkFlowItem = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("dashboard.workflowpanel.inworkflowstate");
-		scheduledStateItem = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		scheduledStateItem = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("dashboard.workflowpanel.scheduledstate");
-		processingStateItem = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		processingStateItem = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("dashboard.workflowpanel.processingstate");
-		deletedStateItem = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		deletedStateItem = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("dashboard.workflowpanel.deletedstate");
-		lockedStateItem = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		lockedStateItem = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("dashboard.workflowpanel.lockedstate");
 	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
-
-	@Test(priority = 0)
-
-	public void verifyAllWorkflowStatesOnIconGuideTest() {
+	@Parameters({"testId"})
+	@Test()
+	public void verifyAllWorkflowStatesOnIconGuideTest(String testId) {
 
 		// login to application
-
 		loginPage.loginToCrafter(userName, password);
+		
+		//Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
 
 		// go to dashboard page
-		homePage.goToDashboardPage();
+		homePage.goToDashboardPage(testId);
 
 		// Assert workflow guide section is present.
-		WebElement workflowSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		WebElement workflowSection = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				workflowPanel);
-		Assert.assertTrue(workflowSection.isDisplayed());
+		Assert.assertTrue(workflowSection.isDisplayed(),"Error: Workflow section is not displayed");
 
 		// Assert neverpub is present.
-		WebElement neverPublished = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		WebElement neverPublished = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				neverPublishedItem);
-		Assert.assertTrue(neverPublished.isDisplayed());
+		Assert.assertTrue(neverPublished.isDisplayed(),"Error: Never published item is not present");
 
 		// Assert edited is present.
-		WebElement edited = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", editedStateItem);
-		Assert.assertTrue(edited.isDisplayed());
-
+		WebElement edited = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", editedStateItem);
+		Assert.assertTrue(edited.isDisplayed(),"Error: Edited item is not present");
 
 		// Assert in workflow is present.
-		WebElement inWorkflow = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", inWorkFlowItem);
-		Assert.assertTrue(inWorkflow.isDisplayed());
+		WebElement inWorkflow = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", inWorkFlowItem);
+		Assert.assertTrue(inWorkflow.isDisplayed(), "Error: Workflow item is not present");
 
 		// Assert scheduled is present.
-		WebElement scheduled = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		WebElement scheduled = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				scheduledStateItem);
-		Assert.assertTrue(scheduled.isDisplayed());
+		Assert.assertTrue(scheduled.isDisplayed(),"Error: Scheduled item is not present");
 
 		// Assert processing is present.
-		WebElement processing = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		WebElement processing = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				processingStateItem);
-		Assert.assertTrue(processing.isDisplayed());
+		Assert.assertTrue(processing.isDisplayed(), "Error: Processing item is not present");
 
 		// Assert deleted for edit is present.
-		WebElement deleted = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", deletedStateItem);
-		Assert.assertTrue(deleted.isDisplayed());
+		WebElement deleted = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", deletedStateItem);
+		Assert.assertTrue(deleted.isDisplayed(),"Error: Never publisehd item is not present");
 
 		// Assert Locked for edit is present.
-		WebElement locked = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", lockedStateItem);
-		Assert.assertTrue(locked.isDisplayed());
+		WebElement locked = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", lockedStateItem);
+		Assert.assertTrue(locked.isDisplayed(),"Error: Locked item is not present");
 
 	}
 
+	@Parameters({"testId"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testId) {
+		apiTestHelper.deleteSite(testId);
+	}
 }

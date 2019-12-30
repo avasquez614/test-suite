@@ -1,17 +1,26 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.loginlogouttestcases;
 
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
 
 /**
  * 
@@ -19,57 +28,33 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class LoginTest {
-
-	WebDriver driver;
-
-	LoginPage objLogin;
-
-	HomePage objHomePage;
-
-	private WebDriverManager driverManager;
-
-	private LoginPage loginPage;
+public class LoginTest extends StudioBaseTest{
 
 	private String userName;
 	private String password;
-
 	private String createSiteButtonXpath;
 	
-	@BeforeClass
+	@BeforeMethod
 	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		
-		UIElementsPropertiesManager UIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-		
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-		
-		this.loginPage = new LoginPage(driverManager, UIElementsPropertiesManager);
-		
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		createSiteButtonXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createSiteButtonXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sites.createsitebutton");
 	
 	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
-
 	@Test(priority = 0)
-
 	public void loginInToStudioTest() {
 
 		// login to application
 
 		loginPage.loginToCrafter(userName, password);
+		
+		//Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
 
 		// Assert create button is present.
-		WebElement createButton = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "xpath",
+		WebElement createButton = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed( "xpath",
 				createSiteButtonXpath);
 
 		Assert.assertTrue(createButton.isDisplayed());

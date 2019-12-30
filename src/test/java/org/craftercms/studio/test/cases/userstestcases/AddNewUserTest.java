@@ -1,17 +1,29 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.userstestcases;
 
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.CreateSitePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.pages.UsersPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
+
 
 /**
  * 
@@ -19,16 +31,11 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class AddNewUserTest {
-
-	private WebDriverManager driverManager;
-	private LoginPage loginPage;
+public class AddNewUserTest extends StudioBaseTest {
 
 	private String userName;
 	private String password;
 
-	private CreateSitePage createSitePage;
-	private UsersPage usersPage;
 	private String newUserFirstNameId;
 	private String newUserLastNameId;
 	private String newUserEmailId;
@@ -37,48 +44,35 @@ public class AddNewUserTest {
 	private String newUserPasswordVerificationId;
 	private String newUserUserNameCreatedXpath;
 
-	@BeforeClass
+	@BeforeMethod
 	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager uIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-
-		this.loginPage = new LoginPage(driverManager, uIElementsPropertiesManager);
-		this.createSitePage = new CreateSitePage(driverManager, uIElementsPropertiesManager);
-		this.usersPage = new UsersPage(driverManager, uIElementsPropertiesManager);
-
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		newUserFirstNameId = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		newUserFirstNameId = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.firstname");
-		newUserLastNameId = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		newUserLastNameId = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.lastname");
-		newUserEmailId = uIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("general.users.email");
-		newUserUserNameId = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		newUserEmailId = uiElementsPropertiesManager.getSharedUIElementsLocators().getProperty("general.users.email");
+		newUserUserNameId = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.username");
-		newUserPasswordId = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		newUserPasswordId = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.password");
-		newUserPasswordVerificationId = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		newUserPasswordVerificationId = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.passwordVerification");
-		newUserUserNameCreatedXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		newUserUserNameCreatedXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.usernamecreated");
 	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
-
-	@Test(priority = 0)
-
-	public void addNewUser() {
+	@Parameters({"testUser"})
+	@Test()
+	public void verifyThatStudioAllowsToCreateANewUser(String testUser) {
 
 		// login to application
 		loginPage.loginToCrafter(userName, password);
 
+		//Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
+		
 		// click On Users option
 		createSitePage.clickOnUsersOption();
 
@@ -86,28 +80,34 @@ public class AddNewUserTest {
 		usersPage.clickOnNewUser();
 
 		// Follow the form
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserFirstNameId).sendKeys("Name");
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", newUserFirstNameId).sendKeys(testUser + "N");
 
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserLastNameId).sendKeys("Last Name");
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", newUserLastNameId).sendKeys(testUser + "LN");
 
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserEmailId)
-				.sendKeys("email@email.com");
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", newUserEmailId)
+				.sendKeys(testUser + "@" + testUser);
 
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserUserNameId).sendKeys("username");
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", newUserUserNameId).sendKeys(testUser);
 
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserPasswordId).sendKeys("password");
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", newUserPasswordId).sendKeys(testUser);
 
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserPasswordVerificationId)
-				.sendKeys("password");
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", newUserPasswordVerificationId)
+				.sendKeys(testUser);
 
 		// Save Button
 		usersPage.clickOnSaveNewUser();
 
 		// Assert new users created is present
-		WebElement newUserCreated = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
-				newUserUserNameCreatedXpath);
+		WebElement newUserCreated = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
+				String.format(newUserUserNameCreatedXpath, testUser));
 
-		Assert.assertTrue(newUserCreated.isDisplayed());
+		Assert.assertTrue(newUserCreated.isDisplayed(),"ERROR: Recently created user is not displayed");
 
+	}
+
+	@Parameters({"testUser"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testUser) {
+		apiTestHelper.deleteUser(testUser);
 	}
 }

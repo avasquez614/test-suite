@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="craftercms - Studio - General TestCases TestSuite" parallel="tests" thread-count="4" verbose="3" preserve-order="false">
+	<parameter name="blueprint" value="editorial"/>
+	<test name="ChangeStateOfPreviousPublishedContent">
+		<parameter name="blueprint" value="editorial"/>
+		<parameter name="testId" value="general003"/>
+		<parameter name="testUser" value="authorgeneral003"/>
+		<parameter name="testGroup" value="site_author"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.generaltestcases.ChangeStateOfPreviousPublishedContent"/>
+		</classes>
+	</test>
+	<test name="Crafter3LoadTest">
+		<parameter name="blueprint" value="editorial"/>
+		<parameter name="testId" value="general001"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.generaltestcases.Crafter3LoadTest1Script">
+			</class>
+		</classes>
+	</test>
+	<test name="RenameParentPageAndPublishChildTest">
+		<parameter name="blueprint" value="editorial"/>
+		<parameter name="testId" value="general002"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.generaltestcases.RenameParentPageAndPublishChildTest"/>
+		</classes>
+	</test>
+	<test name="Verify that no errors with BluePrints are displayed when create sites">
+		<parameter name="blueprint" value="editorial"/>
+		<parameter name="testId" value="general005"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.generaltestcases.VerifyThatNoBluePrintErrorsDisplayedWhenCreateSite"/>
+		</classes>
+	</test>
+	<test name="Verify The application allows to delete a page or component and the change is reflected on delivery">
+		<parameter name="blueprint" value="editorial"/>
+		<parameter name="testId" value="general006"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contenttestcases.AddNewContentAndPublishContentTest"/>
+		</classes>
+	</test>
+</suite> <!-- Suite -->

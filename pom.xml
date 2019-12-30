@@ -1,13 +1,30 @@
+<!--
+  ~ Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.craftercms</groupId>
 	<artifactId>studio-test-suite</artifactId>
 	<packaging>jar</packaging>
-	<version>2.5.2-SNAPSHOT</version>
+	<version>3.1.4</version><!-- craftercms version flag -->
 	<name>studio-test-suite</name>
-	<description></description>
-	<url>https://github.com/craftercms/core</url>
+	<description>Crafter CMS Integration Test Suite</description>
+	<url>https://github.com/craftercms/test-suite</url>
 
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
@@ -32,19 +49,9 @@
 
 	<developers>
 		<developer>
-			<id>sumerjabri</id>
-			<name>Sumer Jabri</name>
-			<email>sumer.jabri@craftercms.org</email>
-		</developer>
-		<developer>
-			<id>avasquez</id>
-			<name>Alfonso Vásquez</name>
-			<email>alfonso.vasquez@craftersoftware.com</email>
-		</developer>
-		<developer>
-			<id>luishernandez</id>
-			<name>Luis Hernandez Monge</name>
-			<email>luis.hernandez@craftersoftware.com</email>
+			<id>yacdaniel</id>
+			<name>Yacdaniel Hurtado</name>
+			<email>yacdaniel.hurtado@craftersoftware.com</email>
 		</developer>
 	</developers>
 
@@ -56,19 +63,45 @@
 	</scm>
 
 	<properties>
+
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<threads>2</threads>
-		<file>src/test/resources/testng.xml</file>
-		<file>src/test/resources/testngcomplexscenarios.xml</file>
-		<file>src/test/resources/testngAPI.xml</file>
-		<file>src/test/resources/testngSanityTest.xml</file>
+		<file>src/test/resources/testng_SanityTest.xml</file>
+		<file>src/test/resources/testng_StudioAccountManagement.xml</file>
+		<file>src/test/resources/testng_StudioContent.xml</file>
+		<file>src/test/resources/testng_StudioContextualNavigation.xml</file>
+		<file>src/test/resources/testng_StudioSiteDropdown.xml</file>
+		<file>src/test/resources/testng_StudioDashboard.xml</file>
+		<file>src/test/resources/testng_StudioGeneral.xml</file>
+		<file>src/test/resources/testng_StudioPreviewTools.xml</file>
+		<file>src/test/resources/testng_StudioSiteConfig.xml</file>
+		<file>src/test/resources/testng_StudioSites.xml</file>
+		<file>src/test/resources/testng_StudioRemoteReposScenarios.xml</file>
+		<file>src/test/resources/testng_StudioUsers.xml</file>
+		<file>src/test/resources/testng_StudioLoginLogout.xml</file>
+		<file>src/test/resources/testng_StudioAPI.xml</file>
+		<file>src/test/resources/testng_StudioAPI2.xml</file>
+		<testng.version>6.8</testng.version>
+		<selenium.version>3.141.5</selenium.version>
+		<junit.version>4.12</junit.version>
+		<hamcrest.version>1.3</hamcrest.version>
+		<gson.version>2.6.2</gson.version>
+		<jayway.restassured.version>2.9.0</jayway.restassured.version>
+		<httpcomponents.httpclient.version>4.5.3</httpcomponents.httpclient.version>
+		<jayway.jsonpath.version>2.2.0</jayway.jsonpath.version>
+		<jackson.version>2.9.8</jackson.version>
+		<log4j.version>2.10.0</log4j.version>
+		<commons.io.version>2.6</commons.io.version>
+		<kirviq.dumbster.version>1.7.1</kirviq.dumbster.version>
+		<jgit.version>4.11.0.201803080745-r</jgit.version>
+		<maven.surefire.plugin.version>3.0.0-M3</maven.surefire.plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>6.8</version>
+			<version>${testng.version}</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -85,54 +118,59 @@
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-chrome-driver</artifactId>
-			<version>3.5.3</version>
+			<version>${selenium.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-all</artifactId>
-			<version>1.3</version>
+			<version>${hamcrest.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.6.2</version>
+			<version>${gson.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.jayway.restassured</groupId>
 			<artifactId>rest-assured</artifactId>
-			<version>2.9.0</version>
+			<version>${jayway.restassured.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-api</artifactId>
-			<version>3.5.3</version>
+			<version>${selenium.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.5.3</version>
+			<version>${httpcomponents.httpclient.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons.io.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jayway.jsonpath</groupId>
 			<artifactId>json-path</artifactId>
-			<version>2.2.0</version>
+			<version>${jayway.jsonpath.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.jayway.jsonpath</groupId>
 			<artifactId>json-path-assert</artifactId>
-			<version>2.2.0</version>
+			<version>${jayway.jsonpath.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.hamcrest</groupId>
@@ -146,78 +184,80 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.2.1</version>
-		</dependency>
-		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-			<version>2.4.3</version>
+			<version>${jackson.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
-			<version>2.4.3</version>
+			<version>${jackson.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.sourceforge.htmlunit</groupId>
-			<artifactId>htmlunit</artifactId>
-			<version>2.19</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
-			<version>2.4.3</version>
+			<version>${jackson.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-remote-driver</artifactId>
-			<version>3.5.3</version>
+			<version>${selenium.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
-			<version>3.5.3</version>
+			<version>${selenium.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-firefox-driver</artifactId>
-			<version>3.5.3</version>
+			<version>${selenium.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/log4j/log4j -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-edge-driver -->
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-edge-driver</artifactId>
-			<version>3.5.3</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.detro</groupId>
-			<artifactId>phantomjsdriver</artifactId>
-			<version>1.2.0</version>
+			<version>${selenium.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-core</artifactId>
-			<version>1.3</version>
+			<version>${hamcrest.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-library</artifactId>
-			<version>1.3</version>
+			<version>${hamcrest.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.github.kirviq</groupId>
 			<artifactId>dumbster</artifactId>
-			<version>1.7.1</version>
+			<version>${kirviq.dumbster.version}</version>
 			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit -->
+		<dependency>
+			<groupId>org.eclipse.jgit</groupId>
+			<artifactId>org.eclipse.jgit</artifactId>
+			<version>${jgit.version}</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -232,91 +272,29 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.20</version>
+				<version>${maven.surefire.plugin.version}</version>
 				<configuration>
 					<suiteXmlFiles>${file}</suiteXmlFiles>
 					<skipTests>false</skipTests>
 					<properties>
 						<property>
-							<name>suitethreadpoolsize</name>
-							<value>${threads}</value>
-						</property>
-						<property>
 							<name>surefire.testng.verbose</name>
 							<value>2</value>
+						</property>
+						<property>
+							<name>listener</name>
+							<value>org.craftercms.studio.test.utils.TestngListeners</value>
 						</property>
 					</properties>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
-				<executions>
-					<execution>
-						<id>validate</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>com.github.klieber</groupId>
-				<artifactId>phantomjs-maven-plugin</artifactId>
-				<version>0.7</version>
-				<configuration>
-					<version>2.1.1</version>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
-	<profiles>
-		<profile>
-			<id>JDK8</id>
-			<activation>
-				<jdk>[1.8,)</jdk>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<version>2.10.4</version>
-						<executions>
-							<execution>
-								<id>attach-javadocs</id>
-								<goals>
-									<goal>jar</goal>
-								</goals>
-								<configuration>
-									<additionalparam>-Xdoclint:none</additionalparam>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>

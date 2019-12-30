@@ -1,16 +1,26 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.userstestcases;
 
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.CreateSitePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
 
 /**
  * 
@@ -18,11 +28,7 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class DesignOfUsersPageTest {
-
-	private WebDriverManager driverManager;
-	private LoginPage loginPage;
-	private CreateSitePage createSitePage;
+public class DesignOfUsersPageTest extends StudioBaseTest{
 
 	private String userName;
 	private String password;
@@ -30,103 +36,75 @@ public class DesignOfUsersPageTest {
 	private String crafterLogoXpath;
 	private String accountTopNavOptionXpath;
 	private String helpTopNavOptionXpath;
-	private String sitesTopNavOptionXpath;
-	private String usersTopNavOptionXpath;
 	private String usersPerPageInputXpath;
 	private String newUserButtonXpath;
 	private String userSearchXpath;
 
-	@BeforeClass
+	@BeforeMethod
 	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager uIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-
-		this.loginPage = new LoginPage(driverManager, uIElementsPropertiesManager);
-		this.createSitePage = new CreateSitePage(driverManager, uIElementsPropertiesManager);
 
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		usersTitleXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		usersTitleXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.userstitle");
-		crafterLogoXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		crafterLogoXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sites.crafterlogo");
-		usersTopNavOptionXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.sites.homeusers");
-		sitesTopNavOptionXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.sites.homesites");
-		helpTopNavOptionXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		helpTopNavOptionXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sites.homehelp");
-		accountTopNavOptionXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		accountTopNavOptionXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sites.accountdropdown");
-		usersPerPageInputXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		usersPerPageInputXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.usersperpageinput");
-		newUserButtonXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		newUserButtonXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.newuserbutton");
-		userSearchXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		userSearchXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.userssearchinput");
 	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
 
 	@Test(priority = 0)
-
-	public void desingOfUsersPageTest() {
+	public void verifyTheDesingOfUsersPageTest() {
 
 		// login to application
 		loginPage.loginToCrafter(userName, password);
+		
+		//Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
 
 		// click On Users option
 		createSitePage.clickOnUsersOption();
 
 		// Assert header is present.
-		WebElement header = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", usersTitleXpath);
+		WebElement header = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", usersTitleXpath);
 		Assert.assertTrue(header.isDisplayed());
 
 		// Assert crafter logo is present.
-		WebElement crafterLogo = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		WebElement crafterLogo = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				crafterLogoXpath);
 		Assert.assertTrue(crafterLogo.isDisplayed());
 
-		// Assert user menu option is present.
-		WebElement userMenuOption = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id",
-				usersTopNavOptionXpath);
-		Assert.assertTrue(userMenuOption.isDisplayed());
-
-		// Assert sites menu option is present.
-		WebElement sitesMenuOption = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id",
-				sitesTopNavOptionXpath);
-		Assert.assertTrue(sitesMenuOption.isDisplayed());
-
 		// Assert help menu option is present.
-		WebElement helpMenuOption = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id",
+		WebElement helpMenuOption = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				helpTopNavOptionXpath);
 		Assert.assertTrue(helpMenuOption.isDisplayed());
 
 		// Assert admin dropdown option is present.
-		WebElement adminOption = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		WebElement adminOption = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				accountTopNavOptionXpath);
 		Assert.assertTrue(adminOption.isDisplayed());
 
 		// Assert users per page combo option is present.
-		WebElement usersPerPage = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		WebElement usersPerPage = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				usersPerPageInputXpath);
 		Assert.assertTrue(usersPerPage.isDisplayed());
 
 		// Assert new user option is present.
-		WebElement newUser = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		WebElement newUser = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				newUserButtonXpath);
 		Assert.assertTrue(newUser.isDisplayed());
 		
 		// Assert search option is present.
-		WebElement search = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		WebElement search = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				userSearchXpath);
 		Assert.assertTrue(search.isDisplayed());
 

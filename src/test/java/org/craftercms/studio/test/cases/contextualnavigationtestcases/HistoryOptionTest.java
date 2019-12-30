@@ -1,17 +1,32 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.craftercms.studio.test.cases.contextualnavigationtestcases;
 
-import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.pages.PreviewPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.craftercms.studio.test.cases.StudioBaseTest;
+import org.openqa.selenium.TimeoutException;
+
 
 /**
  * 
@@ -19,88 +34,80 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class HistoryOptionTest {
-
-	WebDriver driver;
-
-	private WebDriverManager driverManager;
-	private LoginPage loginPage;
-	private HomePage homePage;
-	private PreviewPage previewPage;
+public class HistoryOptionTest extends StudioBaseTest{
 
 	private String userName;
 	private String password;
 	private String siteDropdownXpath;
 	private String homeXpath;
 	private String historyDialogTitle;
-	private String studioLogo;
+	private String actionsHeaderXpath;
+	private String siteDropdownListElementXPath;
 
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager UIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-	
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
+	private static Logger logger = LogManager.getLogger(HistoryOptionTest.class);
 
-		this.loginPage = new LoginPage(driverManager, UIElementsPropertiesManager);
-		this.homePage = new HomePage(driverManager, UIElementsPropertiesManager);
-		this.previewPage = new PreviewPage(driverManager, UIElementsPropertiesManager);
-
+	@Parameters({"testId", "blueprint"})
+	@BeforeMethod
+	public void beforeTest(String testId, String blueprint) {
+		apiTestHelper.createSite(testId, "", blueprint);
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		siteDropdownXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		siteDropdownXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sitedropdown");
-		homeXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		homeXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.home");
-		historyDialogTitle = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		historyDialogTitle = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.historydialogtitle");
-		studioLogo = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.studiologo");
-		
+		actionsHeaderXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.general.historydialogactionsheader");
+		siteDropdownListElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.general.sitedropdownlielement");
 	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
-
-	@Test(priority = 0)
-	public void verifyThatTheHistoryDialogIsDisplayedTest() {
+	@Parameters({"testId"})
+	@Test()
+	public void verifyThatTheHistoryDialogIsDisplayedTest(String testId) {
 
 		// login to application
 		loginPage.loginToCrafter(userName, password);
 		
-        this.driverManager.waitUntilPageLoad();
+		//Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
+		
 		// go to preview page
-		homePage.goToPreviewPage();
+		homePage.goToPreviewPage(testId);
 
-		// Show site content panel
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
-				siteDropdownXpath).click();
+		getWebDriverManager().clickElement("xpath", siteDropdownXpath);
+		
+		this.getWebDriverManager().waitUntilSidebarOpens();
 		
 		// expand pages folder
 		previewPage.expandPagesTree();
-
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("id", studioLogo);
-		
-		// expand home content
-		previewPage.expandHomeTree();
-
-		driverManager.waitUntilPageLoad();
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", homeXpath).click();
+		this.getWebDriverManager().clickElement("xpath", homeXpath);
 
 		// click on history option
 		previewPage.clickOnHistoryOption();
 
 		// Assert
-		String historyPage = this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayed("cssSelector", historyDialogTitle).getText();
+		this.getWebDriverManager().waitForAnimation();
+		try {
+			this.getWebDriverManager().waitUntilElementIsDisplayed("xpath", actionsHeaderXpath);
+		} catch (TimeoutException e) {
+			this.getWebDriverManager().takeScreenshot("HistoryDialogNotCompletedRendered");
+			logger.warn("History dialog is not completely rendered");
+		}
 		
+		this.getWebDriverManager().waitForAnimation();
+		String historyPage = this.getWebDriverManager()
+				.driverWaitUntilElementIsPresentAndDisplayed("xpath", historyDialogTitle).getText();
+		this.getWebDriverManager().waitForAnimation();
 		Assert.assertEquals(historyPage, "Version History");
 
 	}
 
+	@Parameters({"testId"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testId) {
+		apiTestHelper.deleteSite(testId);
+	}
 }

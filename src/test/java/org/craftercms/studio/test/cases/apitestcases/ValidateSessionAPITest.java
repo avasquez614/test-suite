@@ -1,12 +1,26 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.apitestcases;
 
+import org.craftercms.studio.test.api.objects.SecurityAPI;
 import org.craftercms.studio.test.utils.APIConnectionManager;
 import org.craftercms.studio.test.utils.JsonTester;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import static org.hamcrest.Matchers.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
@@ -15,52 +29,30 @@ import java.util.Map;
 
 public class ValidateSessionAPITest {
 
-    private JsonTester api;
-    private String username = "admin";
-	private String password = "admin";
+    private SecurityAPI securityAPI;
 	
     public ValidateSessionAPITest(){
     	APIConnectionManager apiConnectionManager = new APIConnectionManager();
-		api = new JsonTester(apiConnectionManager.getProtocol()
-				, apiConnectionManager.getHost(),apiConnectionManager.getPort());
+		JsonTester api = new JsonTester(apiConnectionManager.getProtocol(), apiConnectionManager.getHost(),
+				apiConnectionManager.getPort());
+    	
+    	securityAPI = new SecurityAPI(api, apiConnectionManager);
     }
 
+    @BeforeTest
+    public void beforeTest(){
+    	securityAPI.logInIntoStudioUsingAPICall();
+    }
+    
     @Test(priority=1)
-    public void login(){
-    	Map<String, Object> json = new HashMap<>();
-		json.put("username", username);
-		json.put("password", password);
-		api.post("/studio/api/1/services/api/1/security/login.json")
-		//.urlParam("username", username)
-		//.urlParam("password", password)
-		.json(json).execute().status(200);
+    public void validateSession(){
+    	securityAPI.testValidateSession();
     }
     
     @Test(priority=2)
-    public void validateSession(){
-		api.get("/studio/api/1/services/api/1/security/validate-session.json").execute().status(200)
-		.json("$.message", is("OK")).debug();
+    public void testValidateSessionUnauthorized(){
+    	securityAPI.logOutFromStudioUsingAPICall();
+    	securityAPI.testValidateSessionUnauthorized();
     }
-    
-    @Test(priority=3)
-    public void logout(){
-    	Map<String, Object> json = new HashMap<>();
-		json.put("username", username);
-		json.put("password", password);
-		
-		api.post("/studio/api/1/services/api/1/security/logout.json")
-		//.urlParam("username", username)
-		//.urlParam("password", password)
-		.json(json).execute().status(200)
-		.json("$.message", is("OK")).debug();
-    }
-    
-    @Test(priority=4)
-    public void validateSessionUnauthorized(){
-		api.get("/studio/api/1/services/api/1/security/validate-session.json")
-		.execute().status(401)
-		.json("$.message", is("Unauthorized")).debug();
-    }
-
  
 }

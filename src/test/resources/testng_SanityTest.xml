@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="craftercms - SanityTest TestSuite" parallel="tests" thread-count="4" verbose="3" preserve-order="false">
+	<test name="Open Studio Test">
+		<parameter name="testId" value="sanity001"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.sanitytesttestcases.AutomateOpeningStudioInActualBrowser"/>
+		</classes>
+	</test>
+	<test name="Login into Studio Test">
+		<parameter name="testId" value="sanity002"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.sanitytesttestcases.AutomateLoginInToStudio"/>
+		</classes>
+	</test>
+	<test name="Create Site Using Editorial BP Test">
+		<parameter name="testId" value="sanity003"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.sanitytesttestcases.AutomateCreatingSiteUsingWebsiteEditorialBlueprint"/>
+		</classes>
+	</test>
+	<test name="Check Items in Site Config Test">
+		<parameter name="testId" value="sanity006"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.sanitytesttestcases.AutomateCheckItemsInSiteConfig" />
+		</classes>
+	</test>
+	<test name="Check Dashboard">
+		<parameter name="testId" value="sanity005"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.sanitytesttestcases.AutomateCheckingNoErrorsDisplayedInTheDashboard" />
+		</classes>
+	</test>
+	<test name="Check no errors in Editorial BP">
+		<parameter name="testId" value="sanity004"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.sanitytesttestcases.AutomateVerifyingNoErrorsPresentInWebsiteEditorialBPHomePage"/>
+		</classes>
+	</test>
+	<test name="Change Password User Test">
+		<classes>
+			<class name="org.craftercms.studio.test.cases.accountmanagementtestcases.ChangePasswordUserTest"/>
+		</classes>
+	</test>
+
+</suite> <!-- Suite -->
+

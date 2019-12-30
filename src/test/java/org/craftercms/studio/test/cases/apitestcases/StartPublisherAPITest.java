@@ -1,12 +1,29 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.apitestcases;
 
+import org.craftercms.studio.test.api.objects.PublishAPI;
+import org.craftercms.studio.test.api.objects.SecurityAPI;
+import org.craftercms.studio.test.api.objects.SiteManagementAPI;
 import org.craftercms.studio.test.utils.APIConnectionManager;
 import org.craftercms.studio.test.utils.JsonTester;
+import org.testng.annotations.AfterGroups;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import static org.hamcrest.Matchers.is;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by gustavo ortiz
@@ -14,90 +31,50 @@ import java.util.Map;
 
 public class StartPublisherAPITest {
 
-	private JsonTester api;
-	private String headerLocationBase;
-	// private String username = "admin";
-	// private String password = "admin";
-	private String siteId = "mysite";
-	private String description = "Description!";
-	private String blueprint = "empty";
-
+	private SiteManagementAPI siteManagementAPI;
+	private SecurityAPI securityAPI;
+	private PublishAPI publishAPI;
+	private String siteId = "startpublishersite";
+	
 	public StartPublisherAPITest() {
 		APIConnectionManager apiConnectionManager = new APIConnectionManager();
-		api = new JsonTester(apiConnectionManager.getProtocol(), apiConnectionManager.getHost(),
+		JsonTester api = new JsonTester(apiConnectionManager.getProtocol(), apiConnectionManager.getHost(),
 				apiConnectionManager.getPort());
-		headerLocationBase = apiConnectionManager.getHeaderLocationBase();
+    	securityAPI = new SecurityAPI(api, apiConnectionManager);
+    	publishAPI = new PublishAPI(api, apiConnectionManager);
+    	siteManagementAPI = new SiteManagementAPI(api, apiConnectionManager);
 	}
 
-	@Test(priority = 1)
-	public void testCreateSite() {
-	 	Map<String, Object> json = new HashMap<>();
-			json.put("site_id", siteId);
-			json.put("description", description);
-			json.put("blueprint", blueprint);
-			
-			api.post("/studio/api/1/services/api/1/site/create.json")
-			//.urlParam("site_id", siteId)
-		    //.urlParam("description", description)
-			//.urlParam("blueprint", blueprint)
-			.json(json).execute().status(201)
-					.header("Location",
-							is(headerLocationBase + "/studio/api/1/services/api/1/site/get.json?site_id="+siteId))
-					.json("$.message", is("OK")).debug();
+	@BeforeTest
+	public void beforeTest() {
+		securityAPI.logInIntoStudioUsingAPICall();
+		siteManagementAPI.testCreateSite(siteId);
 	}
 
-	@Test(priority = 2)
-	public void startPublisher() {
-		Map<String, Object> json = new HashMap<>();
-		json.put("site_id", siteId);
-		
-		api.post("/studio/api/1/publish/start.json")
-		//.urlParam("site_id", siteId)
-		.json(json).execute().status(200)
-				// .json("$.message", is("OK"))
-				.debug();
+	@Test(priority = 1,groups={"startPublisher"})
+	public void testStartPublisher() {
+		publishAPI.testStartPublisher(siteId);
 	}
 
-	@Test(priority = 3)
-	public void invalidParameters() {
-		Map<String, Object> json = new HashMap<>();
-		json.put("site_idnonvalid", siteId);
-		
-		api.post("/studio/api/1/publish/start.json")
-		//.urlParam("site_idnonvalid", siteId)
-		.json(json).execute().status(400)
-				// .json("$.message", is("Invalid parameter(s)"))
-				.debug();
+	@Test(priority = 2,groups={"startPublisher"})
+	public void testStartPublisherInvalidParameters() {
+		publishAPI.testStartPublisherInvalidParameters(siteId);
 	}
 
-	// @Test(priority=4)
-	// public void unauthorized(){
-	// Map<String, Object> json = new HashMap<>();
-	// json.put("site_id", "mySite");
-	// api.post("http://localhost:8080/studio/api/1/publish/start.json?site_id=mySite").json(json).execute().status(401)
-	// //.json("$.message", is("Unauthorized"))
-	// .debug();
-	// }
-
-	@Test(priority = 5)
-	public void siteNotFound() {
-		Map<String, Object> json = new HashMap<>();
-		json.put("site_id", siteId+"nonvalid");
-		
-		api.post("/studio/api/1/publish/start.json")
-		//.urlParam("site_id", siteId+"nonvalid")
-		.json(json).execute().status(404)
-				// .json("$.message", is("site not found"))
-				.debug();
+	@Test(priority = 3,groups={"startPublisher"})
+	public void testStartPublisherSiteNotFound() {
+		publishAPI.testStartPublisherSiteNotFound(siteId);
 	}
-
-	// @Test(priority=6)
-	// public void internalServerError(){
-	// Map<String, Object> json = new HashMap<>();
-	// json.put("site_id", "mySiteNOTFOUND");
-	// api.post("http://localhost:8080/studio/api/1/publish/start.json?site_id=mySite").json(json).execute().status(500)
-	// //.json("$.message", is("Internal server error.ACTUAL_EXCEPTION"))
-	// .debug();
-	// }
+	
+	@AfterGroups(groups={"startPublisher"})
+	public void afterTest(){
+		siteManagementAPI.testDeleteSite(siteId);
+		securityAPI.logOutFromStudioUsingAPICall();
+	}
+	
+	@Test(dependsOnGroups={"startPublisher"})
+	public void testStartPublisherUnauthorized(){
+		publishAPI.testStartPublisherUnauthorized(siteId);
+	}
 
 }

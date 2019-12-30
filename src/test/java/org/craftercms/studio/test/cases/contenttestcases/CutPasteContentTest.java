@@ -1,18 +1,29 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.contenttestcases;
 
-import org.openqa.selenium.WebDriver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.craftercms.studio.test.cases.StudioBaseTest;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.SiteConfigPage;
-import org.craftercms.studio.test.pages.DashboardPage;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
 
 /**
  * 
@@ -20,19 +31,7 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class CutPasteContentTest {
-
-	WebDriver driver;
-
-	private WebDriverManager driverManager;
-
-	private LoginPage loginPage;
-
-	private HomePage homePage;
-
-	private DashboardPage dashboardPage;
-
-	private SiteConfigPage siteConfigPage;
+public class CutPasteContentTest extends StudioBaseTest {
 
 	private String userName;
 	private String password;
@@ -42,162 +41,154 @@ public class CutPasteContentTest {
 	private String entryContentTypeBodyCheckCss;
 	private String studioLogo;
 	private String createFormFrameElementCss;
-	private String createFormSaveAndCloseElementId;
+	private String createFormSaveAndCloseElement;
 	private String createFormMainTitleElementXPath;
 	private String newFolderCreated;
-
 	private String newFolderSpanXpath;
-
 	private String testingItemURLXpath;
+	private String siteDropdownListElementXPath;
+	private String lastPropertiesElementCssSelector;
+	private static Logger logger = LogManager.getLogger(CutPasteContentTest.class);
 
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager UIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-
-		this.loginPage = new LoginPage(driverManager, UIElementsPropertiesManager);
-		this.homePage = new HomePage(driverManager, UIElementsPropertiesManager);
-		this.dashboardPage = new DashboardPage(driverManager, UIElementsPropertiesManager);
-		this.siteConfigPage = new SiteConfigPage(driverManager, UIElementsPropertiesManager);
-
+	@Parameters({"testId", "blueprint"})
+	@BeforeMethod
+	public void beforeTest(String siteId, String blueprint) {
+		apiTestHelper.createSite(siteId, "", blueprint);
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		siteDropdownElementXPath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		siteDropdownElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.sitedropdown");
-		adminConsoleXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		adminConsoleXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.adminconsole");
-		entryContentTypeBodyXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		entryContentTypeBodyXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.entrycontenttype.body");
-		entryContentTypeBodyCheckCss = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		entryContentTypeBodyCheckCss = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.entrycontenttype.bodyrequiredcheck");
-		studioLogo = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("general.studiologo");
-		createFormFrameElementCss = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		studioLogo = uiElementsPropertiesManager.getSharedUIElementsLocators().getProperty("general.studiologo");
+		createFormFrameElementCss = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.createformframe");
-		createFormSaveAndCloseElementId = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormSaveAndCloseElement = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.saveandclosebutton");
-		createFormMainTitleElementXPath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormMainTitleElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.createformTitle");
-		testingItemURLXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		testingItemURLXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.cutpaste.pastedelement");
-		newFolderCreated = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		newFolderCreated = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("dashboard.add_new_folder");
-		newFolderSpanXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		newFolderSpanXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sitecontent.newfolder");
+		siteDropdownListElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.general.sitedropdownlielement");
+		lastPropertiesElementCssSelector = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("general.entrycontenttype.propertiesdivlastelement");
+
 	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
-
-	@Test(priority = 0)
-	public void cutAndPasteContentUsingContextualClickOptionsTest() {
+	@Parameters({"testId"})
+	@Test()
+	public void cutAndPasteContentUsingContextualClickOptionsTest(String testId) {
 
 		// login to application
-
 		loginPage.loginToCrafter(userName, password);
 
+		// Wait for loging page to close
+		getWebDriverManager().waitUntilLoginCloses();
+
 		// go to dashboard page
-
-		homePage.goToDashboardPage();
-
-		driverManager.getDriver().navigate().refresh();
+		homePage.goToDashboardPage(testId);
 
 		// Show site content panel
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", siteDropdownElementXPath).click();
+		logger.debug("Click on Site Dropdown");
+		if (!(this.getWebDriverManager().waitUntilElementIsPresent("xpath", siteDropdownListElementXPath)
+				.getAttribute("class").contains("site-dropdown-open")))
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", siteDropdownElementXPath).click();
 
 		// go to admin console page
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", adminConsoleXpath).click();
+		logger.debug("Click on Admin Console");
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", adminConsoleXpath).click();
 
 		// select content types
 		siteConfigPage.selectContentTypeOption();
 
 		// open content types
-
 		siteConfigPage.clickExistingTypeOption();
 
 		// Confirm the content type selected
 		siteConfigPage.confirmContentTypeSelected();
 
 		// select main content
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", entryContentTypeBodyXpath).click();
+		logger.debug("Select Main content");
+		this.getWebDriverManager().waitUntilSiteConfigMaskedModalCloses();
+		this.getWebDriverManager().waitForAnimation();
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", entryContentTypeBodyXpath).click();
 
 		// Body not required
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("cssSelector", entryContentTypeBodyCheckCss)
+		logger.debug("Disable RTE for the selected content");
+		this.getWebDriverManager().waitForAnimation();
+		this.getWebDriverManager().focusAndScrollDownToBottomInASection("#properties-container",lastPropertiesElementCssSelector);
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", entryContentTypeBodyCheckCss)
 				.click();
 
 		// save
 		siteConfigPage.saveDragAndDropProcess();
 
 		// Switch to the form
-		driverManager.getDriver().navigate().refresh();
-		driverManager.getDriver().switchTo().defaultContent();
+		getWebDriverManager().getDriver().navigate().refresh();
+		getWebDriverManager().getDriver().switchTo().defaultContent();
 
-		// go to dashboard
-		// this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable(
-		// "id", studioLogo);
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("id", studioLogo).click();
+		logger.debug("Return to preview page.");
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", studioLogo).click();
 
 		// expand pages folder
 		dashboardPage.expandPagesTree();
 
 		// right click to see the the menu
+
 		dashboardPage.rightClickToSeeMenu();
 
 		// Select Entry Content Type
+
 		dashboardPage.clickEntryCT();
 
 		// Confirm the Content Type selected
 		dashboardPage.clickOKButton();
 
 		// Switch to the iframe
-		driverManager.getDriver().switchTo().defaultContent();
-		driverManager.getDriver().switchTo().frame(this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayed("cssSelector", createFormFrameElementCss));
+		getWebDriverManager().usingCrafterForm("cssSelector", createFormFrameElementCss, () -> {
 
-		this.driverManager.isElementPresentBycssSelector(createFormFrameElementCss);
+			// Set basics fields of the new content created
+			logger.info("Set the fields of the new content");
+			dashboardPage.setBasicFieldsOfNewContent("Test1", "Testing1");
 
-		// Set basics fields of the new content created
-		dashboardPage.setBasicFieldsOfNewContent("Test1", "Testing1");
+			// Set the title of main content
 
-		// Set the title of main content
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", createFormMainTitleElementXPath)
-				.sendKeys("MainTitle");
+			this.getWebDriverManager().sendText("xpath", createFormMainTitleElementXPath, "MainTitle");
 
-		// save and close
-		this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayedAndClickable("id", createFormSaveAndCloseElementId).click();
-		// save and close
+			// save and close
+			logger.info("Click on Save and close button");
+			this.getWebDriverManager()
 
-		driverManager.getDriver().switchTo().defaultContent();
+					.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", createFormSaveAndCloseElement)
+					.click();
+
+		});
 
 		// reload page
-		driverManager.getDriver().navigate().refresh();
+		getWebDriverManager().getDriver().navigate().refresh();
 
 		// expand home content
-
 		dashboardPage.expandHomeTree();
 
 		// right click to see the menu
-
 		dashboardPage.rightClickToFolderOnHome();
 
 		// Set the name of the folder
-
 		dashboardPage.setFolderName("addnewfolder");
 
-		// Create folder button
-
-		dashboardPage.clickCreateButton();
-
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", newFolderCreated);
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", newFolderCreated);
 
 		// Right click and cut content.
+		this.getWebDriverManager().waitForAnimation();
 		dashboardPage.rightClickToCutOption();
 
 		// Right click and paste content.
@@ -205,20 +196,21 @@ public class CutPasteContentTest {
 		dashboardPage.rightClickToPasteIntoFolder();
 
 		// reload page
-		driverManager.getDriver().navigate().refresh();
-		driverManager.getDriver().navigate().refresh();
+		getWebDriverManager().getDriver().navigate().refresh();
 
-		this.driverManager.isElementPresentAndClickableByXpath(newFolderSpanXpath);
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", newFolderSpanXpath).click();
-		
-		this.driverManager.waitUntilPageLoad();
-		
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", newFolderSpanXpath).click();
+
 		// Assert of the content copied
-		this.driverManager.waitWhileElementIsDisplayedAndClickableByXpath(testingItemURLXpath);
-		String contentCopied = this.driverManager
+		this.getWebDriverManager().waitWhileElementIsDisplayedAndClickableByXpath(testingItemURLXpath);
+		String contentCopied = this.getWebDriverManager()
 				.driverWaitUntilElementIsPresentAndDisplayed("xpath", testingItemURLXpath).getText();
-		Assert.assertEquals(contentCopied, "Testing1");
+		Assert.assertTrue(contentCopied.contains("Testing1"), "New folder does not contain the cut/paste content");
 
 	}
 
+	@Parameters({"testId"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testId) {
+		apiTestHelper.deleteSite(testId);
+	}
 }

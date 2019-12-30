@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -6,7 +22,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
@@ -19,7 +37,6 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.apache.http.message.BasicNameValuePair;
-
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -49,8 +66,8 @@ public class JsonRequest {
 	private Map<String, File> files;
 	private Object jsonParam;
 
-	public JsonRequest(String schema, String host, int port, String path, String type, CloseableHttpClient httpClient,
-			BasicCookieStore cookies) {
+	public JsonRequest(String schema, String host, int port, String path, String type,
+			CloseableHttpClient httpClient, BasicCookieStore cookies) {
 		this.host = host;
 		this.path = path;
 		this.type = type;
@@ -129,10 +146,18 @@ public class JsonRequest {
 			if (this.type.equalsIgnoreCase("POST")) {
 				request = new HttpPost();
 				((HttpPost) request).setEntity(createPostParams(!files.isEmpty()));
+			} else if (this.type.equalsIgnoreCase("DELETE")) {
+				request = new HttpDelete();
+			} else if (this.type.equalsIgnoreCase("PATCH")) {
+				request = new HttpPatch();
+				((HttpPatch) request).setEntity(createPostParams(!files.isEmpty()));
 			} else {
 				request = new HttpGet();
 			}
-			request.setURI(buildURI());
+
+			URI uri = buildURI();
+
+			request.setURI(uri);
 			CloseableHttpResponse response = httpClient.execute(request);
 			return new JsonResponse(response, this.cookieJar);
 		} catch (Exception ex) {
@@ -169,7 +194,8 @@ public class JsonRequest {
 
 	protected StringEntity buildJsonEntity() {
 		try {
-			return new StringEntity(new ObjectMapper().writeValueAsString(jsonParam), ContentType.APPLICATION_JSON);
+			return new StringEntity(new ObjectMapper().writeValueAsString(jsonParam),
+					ContentType.APPLICATION_JSON);
 		} catch (JsonProcessingException e) {
 			fail(e.getMessage());
 			return null;
@@ -179,16 +205,17 @@ public class JsonRequest {
 	protected HttpEntity buildMultipart() throws UnsupportedEncodingException, JsonProcessingException {
 		MultipartEntityBuilder builder = MultipartEntityBuilder.create();
 		if (!params.isEmpty()) {
-			FormBodyPartBuilder paramsBodyPartBuilder = FormBodyPartBuilder.create();
 			for (String s : params.keySet()) {
-				paramsBodyPartBuilder.addField(s, params.get(s));
+				FormBodyPartBuilder paramsBodyPartBuilder = FormBodyPartBuilder.create();
+				paramsBodyPartBuilder.setName(s);
+				paramsBodyPartBuilder.setBody(new StringBody(params.get(s), ContentType.TEXT_PLAIN));
+				builder.addPart(paramsBodyPartBuilder.build());
 			}
-			builder.addPart(paramsBodyPartBuilder.build());
 		}
 		if (jsonParam != null) {
 			FormBodyPartBuilder jsonBodyPartBuilder = FormBodyPartBuilder.create();
-			jsonBodyPartBuilder.setBody(
-					new StringBody(new ObjectMapper().writeValueAsString(jsonParam), ContentType.APPLICATION_JSON));
+			jsonBodyPartBuilder.setBody(new StringBody(new ObjectMapper().writeValueAsString(jsonParam),
+					ContentType.APPLICATION_JSON));
 			builder.addPart(jsonBodyPartBuilder.build());
 		}
 		if (!files.isEmpty()) {
@@ -201,6 +228,7 @@ public class JsonRequest {
 
 	protected URI buildURI() throws URISyntaxException {
 		URIBuilder builder = new URIBuilder();
+
 		builder.setHost(this.host);
 		builder.setPath(this.path);
 		builder.setPort(this.port);
@@ -208,6 +236,7 @@ public class JsonRequest {
 		for (String key : urlParams.keySet()) {
 			builder.addParameter(key, urlParams.get(key));
 		}
+		
 		return builder.build();
 	}
 

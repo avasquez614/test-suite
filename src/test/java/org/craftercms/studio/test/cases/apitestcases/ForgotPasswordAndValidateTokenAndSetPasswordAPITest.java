@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.craftercms.studio.test.cases.apitestcases;
 
 import org.craftercms.studio.test.api.objects.SecurityAPI;
@@ -47,67 +64,40 @@ public class ForgotPasswordAndValidateTokenAndSetPasswordAPITest {
 	}
 	
 	@Test(priority=2)
-	public void testForgotPasswordUserNotFound() {
-		userManagementAPI.testForgotPasswordUserNotFound();
-
+	public void testForgotPasswordInvalidParameters() {
+		userManagementAPI.testForgotPasswordInvalidParameters();
 	}
 	
 	@Test(priority=3)
+	public void testForgotPasswordUserNotFound() {
+		userManagementAPI.testForgotPasswordUserNotFound();
+	}
+	
+	@Test(priority=4)
 	public void testForgotPasswordInternalServerError() {
 		userManagementAPI.testForgotPasswordInternalServerError();
 	}
 
-	@Test(priority = 4)
+	@Test(priority = 5)
 	public void testValidateToken() {
 		userManagementAPI.testValidateToken();
 	}
 
-	@Test(priority = 5)
+	@Test(priority = 6)
 	public void testValidateTokenInvalidParameters() {
 		userManagementAPI.testValidateTokenInvalidParameters();
 	}
-
-	//TODO: This scenario can't be tested because this call is not login dependent
-//	@Test(priority = 6)
-//	public void testValidateTokenUnauthorized() {
-//		securityAPI.logOutFromStudioUsingAPICall();
-//		userManagementAPI.testValidateTokenUnauthorized();
-//		securityAPI.logInIntoStudioUsingAPICall();
-//	}
-
 	
-	//TODO: This scenario can't be tested because LDAP is needed for this
-//	@Test(priority = 7)
-//	public void testValidateTokenExternallyManagedUser() {
-//		userManagementAPI.testUpdateUserToExternallyManaged();
-//		userManagementAPI.testValidateTokenExternallyManagedUser();
-//	}
-
-	//TODO: This scenario can't be executed because there are no way to cause the return of 500
-//	@Test(priority = 8)
-//	public void testValidateTokenInternalServerError() {
-//		userManagementAPI.testValidateTokenInternalServerError();
-//	}
-	
-	@Test(priority = 6)
+	@Test(priority = 7)
 	public void testSetPassword() {
 		userManagementAPI.testSetPassword();
 	}
 
-	@Test(priority = 7)
+	@Test(priority = 8)
 	public void testSetPasswordInvalidParameters() {
 		userManagementAPI.testSetPasswordInvalidParameters();
 		isTheLastPassed=true;
 	}
-
-	//TODO: This scenario can't be tested because this call is not login dependent
-//	@Test(priority = 11)
-//	public void testSetPasswordUnauthorized() {
-//		securityAPI.logOutFromStudioUsingAPICall();
-//		userManagementAPI.testSetPasswordUnauthorized();
-//		securityAPI.logInIntoStudioUsingAPICall();
-//	}
-	
 	@AfterMethod
 	public void afterTest() {	
 		if(isTheFirstTest)

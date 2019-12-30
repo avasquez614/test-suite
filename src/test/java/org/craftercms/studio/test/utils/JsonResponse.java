@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.utils;
 
 import com.jayway.jsonassert.JsonAssert;
@@ -7,9 +23,9 @@ import org.apache.http.Header;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hamcrest.Matcher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.io.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
@@ -22,7 +38,7 @@ public class JsonResponse {
 	private final JsonAsserter json;
 	private final BasicCookieStore cookieJar;
 	private final ByteArrayInputStream raw;
-	private Logger log = LoggerFactory.getLogger(this.getClass());
+	private static final Logger logger = LogManager.getLogger(JsonResponse.class);
 
 	public JsonResponse(CloseableHttpResponse response, BasicCookieStore cookieJar) throws IOException {
 		this.httpResponse = response;
@@ -55,9 +71,9 @@ public class JsonResponse {
 	public JsonResponse debug() {
 		try {
 			for (Header header : httpResponse.getAllHeaders()) {
-				log.info("{}={}", header.getName(), header.getValue());
+				logger.info("{}={}", header.getName(), header.getValue());
 			}
-			log.info(IOUtils.toString(raw));
+			logger.info(IOUtils.toString(raw));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -80,4 +96,14 @@ public class JsonResponse {
 		return this;
 	}
 
+	public String getRaw(){
+
+		try {
+			 return IOUtils.toString(raw);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return "";
+	}
 }

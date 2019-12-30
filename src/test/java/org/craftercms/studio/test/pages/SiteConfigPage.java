@@ -1,8 +1,29 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.pages;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
 import org.craftercms.studio.test.utils.WebDriverManager;
+import org.openqa.selenium.TimeoutException;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
+import org.testng.Assert;
 
 /**
  * 
@@ -18,9 +39,8 @@ public class SiteConfigPage {
 	private String okButton;
 	private String saveButton;
 	private String genericTitle;
-	private String displayTemplateField;
-	private String editFTLOption;
 	private String inputTitle;
+	private String inputVariableName;
 	private String inputIceGroup;
 	private String inputDescription;
 	private String inputDefaultValue;
@@ -45,22 +65,59 @@ public class SiteConfigPage {
 	public String clickOnDataSourceImageUploadedFromCMISRepositorySection;
 	private String contentTypeVisualContainer;
 	private String contentTypeSavedNotification;
+	private String cancelButton;
+	private String remoteRepositoriesOptionXpath;
+	private String suiteConfigIFrame;
+	private String addNewRepositoryButton;
+	private String addNewRepoRepoName;
+	private String addNewRepoRepoURL;
+	private String addNewRepoTokenAuthOption;
+	private String addNewRepoBasicAuthOption;
+	private String addNewRepoPrivateKeyAuthOption;
+	private String addNewRepositoryUsernameInput;
+	private String addNewRepositoryPasswordInput;
+	private String addNewRepositoryTokenInput;
+	private String addNewRepositoryPrivateKeyTextArea;
+	private String addNewRepositoryCreateButton;
+	private String pushOkButtonXpath;
+	private String studioLogo;
+	private String remoteRepoNameHeader;
+	private String remoteRepoURLHeader;
+	private String remoteRepoFetchHeader;
+	private String remoteRepopushURLHeader;
+	private String remoteRepoRows;
+	private String remoteRepoFirsChildName;
+	private String remoteRepoFirsChildURL;
+	private String remoteRepoFirsChildPushURL;
+	private String controlsSectionFormSectionLocator;
+	private String contentTypeContainerLocator;
+	private String controlByNameForm;
+	private String defaultSectionByNameForm;
+	private String postfixNotificationErrorCss;
+	private String postfixValueNotificationErrorCss;
+	private String pushButtonXpath;
 
-	public SiteConfigPage(WebDriverManager driverManager, UIElementsPropertiesManager UIElementsPropertiesManager) {
+	private static Logger logger = LogManager.getLogger(SiteConfigPage.class);
+
+	public SiteConfigPage(WebDriverManager driverManager,
+			UIElementsPropertiesManager UIElementsPropertiesManager) {
 		this.driverManager = driverManager;
 		contentTypeOption = UIElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("adminconsole.content_type_option");
 		openExistingTypeOption = UIElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("adminconsole.open_Existing_Type_Option");
-		okButton = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("adminconsole.ok_Button");
-		saveButton = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("adminconsole.save_Button");
+		okButton = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.ok_Button");
+		saveButton = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.save_Button");
+		cancelButton = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.cancel_Button");
 		genericTitle = UIElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("adminconsole.generic_title");
-		displayTemplateField = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("adminconsole.display_Template_Field");
-		editFTLOption = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("adminconsole.edit_FTL_Option");
-		inputTitle = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("adminconsole.input_Title");
+		inputTitle = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.input_Title");
+		inputVariableName =  UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.input_variable_name");
 		inputIceGroup = UIElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("adminconsole.input_Ice_Group");
 		inputDescription = UIElementsPropertiesManager.getSharedUIElementsLocators()
@@ -99,10 +156,11 @@ public class SiteConfigPage {
 				.getProperty("adminconsole.contenttype.entry.contenttypecontainerautofilename");
 		clickOnDataSourceChildContentSection = UIElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("adminconsole.contenttype.entry.contenttypecontainerdatasourcechildcontent");
-		clickOnDataSourceImageUploadedFromDesktopSection = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("adminconsole.contenttype.entry.contenttypecontainerdatasourceimageuploadedfromdesktop");
-		clickOnDataSourceImageUploadedFromRepositorySection = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty(
+		clickOnDataSourceImageUploadedFromDesktopSection = UIElementsPropertiesManager
+				.getSharedUIElementsLocators().getProperty(
+						"adminconsole.contenttype.entry.contenttypecontainerdatasourceimageuploadedfromdesktop");
+		clickOnDataSourceImageUploadedFromRepositorySection = UIElementsPropertiesManager
+				.getSharedUIElementsLocators().getProperty(
 						"adminconsole.contenttype.entry.contenttypecontainerdatasourceimageuploadedfromrepository");
 		clickOnDataSourceImageUploadedFromCMISRepositorySection = UIElementsPropertiesManager
 				.getSharedUIElementsLocators().getProperty(
@@ -111,28 +169,85 @@ public class SiteConfigPage {
 				.getProperty("general.contenttype.visualcontainer");
 		contentTypeSavedNotification = UIElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.contenttype.savednotification");
+		remoteRepositoriesOptionXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.remoterepositories_option");
+		suiteConfigIFrame = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.general.adduser.iframe");
+		addNewRepositoryButton = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.addnewrepo");
+		addNewRepoRepoName = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.addnewrepo.name");
+		addNewRepoRepoURL = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.addnewrepo.url");
+		addNewRepoBasicAuthOption = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("home.createsite.fromgit.repositorybasicauthenticationtype");
+		addNewRepoTokenAuthOption = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("home.createsite.fromgit.repositorygittokenauthenticationtype");
+		addNewRepoPrivateKeyAuthOption = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.addnewrepo.privatekeyoption");
+		addNewRepositoryUsernameInput = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("home.createsite.fromgit.repositoryusername");
+		addNewRepositoryPasswordInput = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("home.createsite.fromgit.repositoryuserpassword");
+		addNewRepositoryTokenInput = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("home.createsite.fromgit.repositorytoken");
+		addNewRepositoryPrivateKeyTextArea = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("home.createsite.fromgit.repositoryprivatekey");
+		addNewRepositoryCreateButton = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.addnewrepo.createbutton");
+		pushOkButtonXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.newrepo.push.okbutton");
+		studioLogo = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("general.studiologo");
+		remoteRepoNameHeader = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.tableheader.name");
+		remoteRepoURLHeader = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.tableheader.url");
+		remoteRepoFetchHeader = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.tableheader.fetch");
+		remoteRepopushURLHeader = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.tableheader.pushurl");
+		remoteRepoRows = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.tablechilds");
+		remoteRepoFirsChildName = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.tablechilds.firstchildname");
+		remoteRepoFirsChildURL = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.tablechilds.firstchildurl");
+		remoteRepoFirsChildPushURL = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.tablechilds.firstchildpushurl");
+		controlsSectionFormSectionLocator = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.contenttype.entry.controlssectionformsection");
+		contentTypeContainerLocator = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.contenttype.entry.contenttypecontainer");
+		controlByNameForm = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.contentype.control.by.name");
+		defaultSectionByNameForm = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.contenttype.entry.contenttypecontainerformsecttion.by.name");
+		postfixNotificationErrorCss =  UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.contenttype.postfix.notifiaction.css");
+		postfixValueNotificationErrorCss = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("adminconsole.contenttype.postfix.value.notifiaction.css");
+		pushButtonXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("remoterepositories.newrepo.pushbutton");
+
 	}
 
 	// Click on Content Type option
 
 	public void clickContentTypeOption() {
-		WebElement contentTypeOpt = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
-				contentTypeOption);
-		contentTypeOpt.click();
+		driverManager.clickElement("xpath", contentTypeOption);
 	}
 
 	public void selectContentTypeOption() {
 		// Click on Content Type option
+		logger.debug("select content types");
 		this.clickContentTypeOption();
 	}
 
 	// Click on open existing Type option
 
 	public void clickOpenExistingTypeOption() {
-		this.driverManager.isElementPresentAndClickableByXpath(openExistingTypeOption);
-		WebElement openExistingTypeOpt = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
-				openExistingTypeOption);
-		openExistingTypeOpt.click();
+		driverManager.clickElement("xpath", openExistingTypeOption);
 	}
 
 	public void clickExistingTypeOption() {
@@ -141,43 +256,98 @@ public class SiteConfigPage {
 	}
 
 	public void selectPageArticleContentTypeOption() {
+		logger.debug("Click on Existing Type Option");
 		WebElement selectPageArticleOption = this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayed("cssSelector", pageArticleContentTypeOption);
+				.driverWaitUntilElementIsPresentAndDisplayed("xpath", pageArticleContentTypeOption);
 		selectPageArticleOption.click();
 
 	}
 
 	// Confirm the content type selected
 	public void okContentTypeSelected() {
-		this.driverManager.isElementPresentAndClickableById(okButton);
-		WebElement okButtonOpt = this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("id",
-				okButton);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", okButton);
+		WebElement okButtonOpt = this.driverManager
+				.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", okButton);
 		okButtonOpt.click();
-		this.driverManager.isElementPresentAndClickableByXpath(contentTypeVisualContainer);
-		this.driverManager.isElementPresentAndClickableByXpath(contentTypeVisualContainer);
+		// Delete thread of 2 seconds
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", contentTypeVisualContainer);
 	}
 
 	public void confirmContentTypeSelected() {
 		// Confirm the content type selected
+		logger.info("Confirm Selected type");
 		this.okContentTypeSelected();
 	}
 
 	// Save the section dropped.
 	public void saveSectionDropped() {
-		WebElement okButtonOpt = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", saveButton);
-		okButtonOpt.click();
-		this.driverManager.isElementPresentByXpath(contentTypeSavedNotification);
+		this.driverManager.waitForAnimation();
+		for (int i = 0; i < driverManager.getNumberOfAttemptsForElementsDisplayed(); i++) {
+			try {
+				this.driverManager.waitUntilElementIsClickable("xpath", saveButton).click();
+				WebElement notification = this.driverManager.waitUntilElementIsDisplayed("xpath",
+						contentTypeSavedNotification);
+				this.driverManager.waitUntilContentTypeNotificationIsNotDisplayed("xpath", "div",
+						notification);
+				this.driverManager.waitForAnimation();
+				break;
+			} catch (TimeoutException e) {
+				logger.warn("Click on Save button didn't work, trying again");
+			} catch (WebDriverException exception) {
+				driverManager.takeScreenshot("ErrorDialogWasDisplayed");
+				WebElement error = this.driverManager.waitUntilElementIsDisplayed("xpath",
+						".//div[@class='bd']");
+				logger.warn("Error dialog was displayed, the error is: {}", error.getText());
+			}
+		}
+	}
+
+	public void saveSectionDropped(Boolean oneTime) {
+		if (oneTime) {
+			try {
+				this.driverManager.waitUntilElementIsClickable("xpath", saveButton).click();
+				WebElement notification = this.driverManager.waitUntilElementIsDisplayed("xpath",
+						contentTypeSavedNotification);
+				this.driverManager.waitUntilContentTypeNotificationIsNotDisplayed("xpath", "div",
+						notification);
+			} catch (TimeoutException e) {
+				logger.warn("Click on Save button didn't work, trying again");
+			} catch (WebDriverException exception) {
+				driverManager.takeScreenshot("ErrorDialogWasDisplayed");
+				WebElement error = this.driverManager.waitUntilElementIsDisplayed("xpath",
+						".//div[@class='bd']");
+				logger.warn("Error dialog was displayed, the error is: {}", error.getText());
+			}
+		}
+		else {
+			driverManager.clickElement("xpath", saveButton);
+		}
+
 	}
 
 	public void saveDragAndDropProcess() {
 		// Save the section dropped.
+		logger.debug("Click on Save button");
+		this.driverManager.waitForAnimation();
 		this.saveSectionDropped();
+	}
+
+	public void saveDragAndDropProcess(Boolean one) {
+		// Save the section dropped.
+		logger.debug("Click on Save button");
+		this.driverManager.waitForAnimation();
+		this.saveSectionDropped(one);
+	}
+
+	public void cancelChangesOnContentType() {
+		logger.debug("Click on Cancel button");
+		this.driverManager.waitUntilElementIsClickable("xpath", cancelButton).click();
 	}
 
 	// Click on generic title to edit the context type selected.
 
 	public void clickOnGenericTitle() {
-		WebElement ClickTitle = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("cssSelector",
+		WebElement ClickTitle = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				genericTitle);
 		ClickTitle.click();
 	}
@@ -187,57 +357,28 @@ public class SiteConfigPage {
 		this.clickOnGenericTitle();
 	}
 
-	// Click on display template field.
-	public void clickOnDisplayTemplateField() {
-		WebElement showTemplate = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("cssSelector",
-				displayTemplateField);
-		showTemplate.click();
-	}
-
-	public void doClickOnDisplayTemplateField() {
-		// Click on display template field.
-		this.clickOnDisplayTemplateField();
-	}
-
-	// Edit ftl option
-
-	public void clickOnEditFTLOption() {
-		WebElement editFLTopt = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("cssSelector",
-				editFTLOption);
-		editFLTopt.click();
-	}
-
-	public void doClickOnEditFTLOption() {
-		// Edit ftl option
-		this.clickOnEditFTLOption();
-	}
-
 	// Set title
 	public void setTitle(String strTitle) {
-		WebElement typeTitle = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("cssSelector",
-				inputTitle);
-		typeTitle.sendKeys(strTitle);
+		driverManager.sendText("xpath", inputTitle, strTitle);
+	}
+
+	public void setVariableName(String strVariableName) {
+		driverManager.sendText("xpath", inputVariableName, strVariableName);
 	}
 
 	// Set ICE group
 	public void setIceGroup(String strICEGroup) {
-		WebElement typeIceGroup = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("cssSelector",
-				inputIceGroup);
-		typeIceGroup.sendKeys(strICEGroup);
+		driverManager.sendText("xpath", inputIceGroup, strICEGroup);
 	}
 
 	// Set description
 	public void setDescription(String strDescription) {
-		WebElement typeDescription = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("cssSelector",
-				inputDescription);
-		typeDescription.sendKeys(strDescription);
+		driverManager.sendText("xpath", inputDescription, strDescription);
 	}
-	
+
 	// Set default value
 	public void setDefaultValue(String strDefaultValue) {
-		WebElement typeDefaultValue = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("cssSelector",
-				inputDefaultValue);
-		typeDefaultValue.sendKeys(strDefaultValue);
+		driverManager.sendText("xpath", inputDefaultValue, strDefaultValue);
 	}
 
 	public void completeControlsFieldsBasics(String strTitle, String strICEGroup, String strDescription,
@@ -252,6 +393,19 @@ public class SiteConfigPage {
 		this.setDefaultValue(strDefaultValue);
 	}
 
+	public void completeControlsFieldsBasics(String strTitle, String strVariableName, String strICEGroup,
+			String strDescription, String strDefaultValue) {
+		// Fill title
+		this.setTitle(strTitle);
+		// Fill Name/Variable Name
+		this.setVariableName(strVariableName);
+		// Fill Ice group
+		this.setIceGroup(strICEGroup);
+		// Fill description
+		this.setDescription(strDescription);
+		// Fill default value
+		this.setDefaultValue(strDefaultValue);
+	}
 	public void completeControlsFieldsBasics2(String strTitle, String strICEGroup, String strDescription) {
 		// Fill title
 		this.setTitle(strTitle);
@@ -263,10 +417,7 @@ public class SiteConfigPage {
 
 	// Click on input section to can view the properties
 	public void clickOnInputSectionToViewTheProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnInputSection);
-		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
-				clickOnInputSection);
-		showSection.click();
+		driverManager.clickElement("xpath", clickOnInputSection);
 	}
 
 	public void clickInputSection() {
@@ -281,9 +432,10 @@ public class SiteConfigPage {
 
 	// Click on Repeating group to view the properties of it
 	public void clickOnRepeatingGroupToViewTheProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnRepeatingGroupSection);
-		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
 				clickOnRepeatingGroupSection);
+		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable(
+				"xpath", clickOnRepeatingGroupSection);
 		showSection.click();
 	}
 
@@ -294,7 +446,8 @@ public class SiteConfigPage {
 
 	// Click on Repeating group to view the properties of it
 	public void clickOnTextAreaToViewTheProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnTextAreaSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnTextAreaSection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnTextAreaSection);
 		showSection.click();
@@ -322,7 +475,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickRTESectionToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnRTESection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnRTESection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnRTESection);
 		showSection.click();
@@ -334,7 +488,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickDropdownSectionToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnDropdownSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnDropdownSection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnDropdownSection);
 		showSection.click();
@@ -345,7 +500,10 @@ public class SiteConfigPage {
 	}
 
 	public void clickDateTimeSectionToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnDropdownSection);
+
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnDropdownSection);
+
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnDropdownSection);
 		showSection.click();
@@ -356,7 +514,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickCheckBoxSectionToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnCheckBoxSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnCheckBoxSection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnCheckBoxSection);
 		showSection.click();
@@ -368,9 +527,10 @@ public class SiteConfigPage {
 	}
 
 	public void clickGroupedCheckBoxesSectionToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnGroupedCheckBoxesSection);
-		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
 				clickOnGroupedCheckBoxesSection);
+		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable(
+				"xpath", clickOnGroupedCheckBoxesSection);
 		showSection.click();
 	}
 
@@ -379,9 +539,10 @@ public class SiteConfigPage {
 	}
 
 	public void clickItemSelectorToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnItemSelectorSection);
-		WebElement showItemSelectorSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
 				clickOnItemSelectorSection);
+		WebElement showItemSelectorSection = this.driverManager
+				.driverWaitUntilElementIsPresentAndDisplayed("xpath", clickOnItemSelectorSection);
 		showItemSelectorSection.click();
 	}
 
@@ -390,7 +551,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickImageToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnImageSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnImageSection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnImageSection);
 		showSection.click();
@@ -401,7 +563,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickVideoToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnVideoSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnVideoSection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnVideoSection);
 		showSection.click();
@@ -412,7 +575,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickLabelToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnLabelSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnLabelSection);
 		WebElement showLabelSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnLabelSection);
 		showLabelSection.click();
@@ -423,7 +587,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickPageOrderToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnPageOrderSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnPageOrderSection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnPageOrderSection);
 		showSection.click();
@@ -434,7 +599,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickFileNameToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnFileNameSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnFileNameSection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnFileNameSection);
 		showSection.click();
@@ -454,7 +620,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickAutoFileNameToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnAutoFileNameSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnAutoFileNameSection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnAutoFileNameSection);
 		showSection.click();
@@ -466,6 +633,7 @@ public class SiteConfigPage {
 
 	public void completeDataSourcesFieldsBasics(String strTitle) {
 		// Fill title
+		this.driverManager.waitForAnimation();
 		this.setTitle(strTitle);
 	}
 
@@ -474,7 +642,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickDataSourceChildContentToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnDataSourceChildContentSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnDataSourceChildContentSection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnDataSourceChildContentSection);
 		showSection.click();
@@ -485,7 +654,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickDataSourceImageUploadedFromDesktopToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnDataSourceImageUploadedFromDesktopSection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnDataSourceImageUploadedFromDesktopSection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnDataSourceImageUploadedFromDesktopSection);
 		showSection.click();
@@ -496,10 +666,12 @@ public class SiteConfigPage {
 	}
 
 	public void clickDataSourceImageUploadedFromRepositoryToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnDataSourceImageUploadedFromRepositorySection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnDataSourceImageUploadedFromRepositorySection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnDataSourceImageUploadedFromRepositorySection);
 		showSection.click();
+
 	}
 
 	public void clickDataSourceImageUploadedFromRepositorySection() {
@@ -507,7 +679,8 @@ public class SiteConfigPage {
 	}
 
 	public void clickDataSourceImageUploadedFromCMISRepositoryToViewProperties() {
-		this.driverManager.isElementPresentAndClickableByXpath(clickOnDataSourceImageUploadedFromCMISRepositorySection);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				clickOnDataSourceImageUploadedFromCMISRepositorySection);
 		WebElement showSection = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				clickOnDataSourceImageUploadedFromCMISRepositorySection);
 		showSection.click();
@@ -515,5 +688,182 @@ public class SiteConfigPage {
 
 	public void clickDataSourceImageUploadedFromCMISRepositorySection() {
 		clickDataSourceImageUploadedFromCMISRepositoryToViewProperties();
+	}
+
+	public void clickRemoteRepositoriesOption() {
+		logger.info("Clicking Remote Repositories option");
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepositoriesOptionXpath)
+				.click();
+	}
+
+	public void clickAddNewRepositoryButton() {
+		logger.info("Adding new remote repository");
+		this.driverManager.waitForAnimation();
+		driverManager.getDriver().switchTo().defaultContent();
+
+		this.driverManager.getDriver().switchTo().frame(
+				this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", suiteConfigIFrame));
+
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
+				addNewRepositoryButton);
+
+		this.driverManager
+				.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", addNewRepositoryButton)
+				.click();
+	}
+
+	public void addNewRepositoryUsingPrivateKeyAuthentication(String repositoryName, String repositoryURL,
+			String privateKeyContent) {
+		addNewRepository("key", repositoryName, repositoryURL, "", "", "", privateKeyContent);
+	}
+
+	public void addNewRepository(String repoType, String repositoryName, String repositoryURL, String repoUsername,
+	 		String repoPassword, String token, String privateKey) {
+		driverManager.getDriver().switchTo().activeElement();
+		driverManager.sendText("xpath", addNewRepoRepoName, repositoryName);
+		driverManager.sendText("xpath", addNewRepoRepoURL, repositoryURL);
+		if (repoType.equalsIgnoreCase("basic")) {
+			driverManager.clickElement("xpath", addNewRepoBasicAuthOption);
+			driverManager.sendText("xpath", addNewRepositoryUsernameInput, repoUsername);
+			driverManager.sendText("xpath", addNewRepositoryPasswordInput, repoPassword);
+		}
+		else if (repoType.equalsIgnoreCase("token")) {
+			driverManager.clickElement("xpath", addNewRepoTokenAuthOption);
+			driverManager.sendText("xpath", addNewRepositoryTokenInput, token);
+		}
+		else if (repoType.equalsIgnoreCase("key")) {
+			driverManager.clickElement("xpath", addNewRepoPrivateKeyAuthOption);
+			driverManager.sendTextByLineJS("id", addNewRepositoryPrivateKeyTextArea, privateKey);
+		}
+
+		driverManager.clickElement("xpath",  addNewRepositoryCreateButton);
+		driverManager.getDriver().switchTo().activeElement();
+		driverManager.getDriver().switchTo().defaultContent();
+	}
+
+	public void pushSiteChangesToRemoteRepo(String upArrowButtonXpath) {
+		this.driverManager.waitForAnimation();
+		this.driverManager.getDriver().switchTo().activeElement();
+
+		this.driverManager.getDriver().switchTo().frame(
+				this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", suiteConfigIFrame));
+		
+		this.driverManager.clickElement("xpath", pushButtonXpath);
+
+		this.driverManager.waitForAnimation();
+		this.driverManager.getDriver().switchTo().activeElement();
+
+		this.driverManager.clickElement("xpath", pushOkButtonXpath);
+	}
+
+	public void pullSiteChangesFromRemoteRepo(String downArrowButtonXpath) {
+		this.driverManager.waitForAnimation();
+		this.driverManager.getDriver().switchTo().activeElement();
+
+		this.driverManager.getDriver().switchTo().frame(
+				this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", suiteConfigIFrame));
+		
+		this.driverManager
+				.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", downArrowButtonXpath)
+				.click();
+
+		this.driverManager.waitForAnimation();
+		this.driverManager.getDriver().switchTo().activeElement();
+
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", pushOkButtonXpath)
+				.click();
+	}
+
+	public void deleteRemoteRepo(String trashButtonXpath) {
+		this.driverManager.waitForAnimation();
+		this.driverManager.getDriver().switchTo().activeElement();
+
+		this.driverManager.getDriver().switchTo().frame(
+				this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", suiteConfigIFrame));
+		
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", trashButtonXpath)
+				.click();
+
+		this.driverManager.waitForAnimation();
+		this.driverManager.getDriver().switchTo().activeElement();
+
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", pushOkButtonXpath)
+				.click();
+	}
+
+	public void checkThatRepositoriesListIsEmpty() {
+		logger.info("Checking that the remote repositories list is empty");
+		this.driverManager.waitForAnimation();
+		driverManager.getDriver().switchTo().defaultContent();
+
+		this.driverManager.getDriver().switchTo().frame(
+				this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", suiteConfigIFrame));
+
+		this.checkRepositoriesListHeaders();
+
+		Assert.assertFalse(this.driverManager.elementHasChildsByXPath(remoteRepoRows));
+
+		driverManager.getDriver().switchTo().defaultContent();
+
+	}
+
+	public void checkRepositoriesListHeaders() {
+		logger.info("Checking that remote repository table headers");
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepoNameHeader);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepoURLHeader);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepoFetchHeader);
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepopushURLHeader);
+	}
+
+	public void checkThatRepositoriesListIsNotEmptyAndListContainsRepo(String name, String gitRepoUrl) {
+		logger.info("Checking that the remote repositories list is not empty");
+		this.driverManager.waitForAnimation();
+		driverManager.getDriver().switchTo().defaultContent();
+
+		this.driverManager.getDriver().switchTo().frame(
+				this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", suiteConfigIFrame));
+
+		this.checkRepositoriesListHeaders();
+
+		logger.info("Checking that the new remote repository is on the list");		
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepoFirsChildName);
+		Assert.assertTrue(name.equalsIgnoreCase(this.driverManager
+				.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepoFirsChildName).getText()));
+
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepoFirsChildURL);
+		Assert.assertTrue(this.driverManager
+				.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepoFirsChildURL).getText()
+				.contains(gitRepoUrl));
+
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepoFirsChildPushURL);
+		Assert.assertTrue(this.driverManager
+				.driverWaitUntilElementIsPresentAndDisplayed("xpath", remoteRepoFirsChildPushURL).getText()
+				.contains(gitRepoUrl));
+
+		this.driverManager.waitForAnimation();
+		driverManager.getDriver().switchTo().defaultContent();
+
+		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", studioLogo)
+				.click();
+	}
+
+	public SiteConfigPage dragAndDropFormSection() {
+		WebElement fromControlFormSectionElement = driverManager.waitUntilElementIsDisplayed( "xpath", controlsSectionFormSectionLocator);
+		WebElement ToContentTypeContainer = driverManager.waitUntilElementIsDisplayed( "xpath", contentTypeContainerLocator);
+		driverManager.dragAndDropElement(fromControlFormSectionElement, ToContentTypeContainer);
+		return this;
+	}
+
+	public SiteConfigPage dragAndDropControls(String controlName, String sectionName) {
+		WebElement fromControl = driverManager.waitUntilElementIsDisplayed("xpath", String.format(controlByNameForm, controlName));
+		WebElement toSection = driverManager.waitUntilElementIsDisplayed("xpath", String.format(defaultSectionByNameForm, sectionName));
+		driverManager.dragAndDropElement(fromControl, toSection);
+		return this;
+	}
+
+	public String[] getPostfixNotificationError() {
+		String errorMsg =  driverManager.getText("cssselector", postfixNotificationErrorCss);
+		String errorVariableName = driverManager.getText("cssselector", postfixValueNotificationErrorCss);
+		return new String[] { errorMsg, errorVariableName };
 	}
 }

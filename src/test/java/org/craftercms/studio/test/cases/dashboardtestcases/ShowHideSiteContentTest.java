@@ -1,17 +1,29 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.dashboardtestcases;
 
-import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.DashboardPage;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 /**
  * 
@@ -19,74 +31,64 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class ShowHideSiteContentTest {
+public class ShowHideSiteContentTest extends StudioBaseTest {
 
-	WebDriver driver;
-
-	private WebDriverManager driverManager;
-
-	private LoginPage loginPage;
-	
-	private HomePage homePage;
-
-	private DashboardPage dashboardPage;
-
-	
 	private String userName;
 	private String password;
 	private String adminConsoleXpath;
-	
+	private String siteDropdownListElementXPath;
 
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-
-		UIElementsPropertiesManager UIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-		
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-		
-		this.loginPage = new LoginPage(driverManager, UIElementsPropertiesManager);
-		this.homePage = new HomePage(driverManager, UIElementsPropertiesManager);
-		this.dashboardPage = new DashboardPage(driverManager, UIElementsPropertiesManager);
-		
+	@Parameters({"testId", "blueprint"})
+	@BeforeMethod
+	public void beforeTest(String testId, String blueprint) {
+		apiTestHelper.createSite(testId, "", blueprint);
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		adminConsoleXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		adminConsoleXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.adminconsole");
-	
+		siteDropdownListElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.general.sitedropdownlielement");
+
 	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
-
-	@Test(priority = 0)
-	public void verifyThatTheSiteContentIsDisplayedOrHiddenWhenClicksOnSiteContentTest() {
+	@Parameters({"testId"})
+	@Test()
+	public void verifyThatTheSiteContentIsDisplayedOrHiddenWhenClicksOnSiteContentTest(String testId) {
 
 		// login to application
 
 		loginPage.loginToCrafter(userName, password);
 
-		// go to dashboard page
-		homePage.goToDashboardPage();
+		// Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
 
+		// go to dashboard page
+
+		homePage.goToDashboardPage(testId);
+
+		if (!(this.getWebDriverManager().waitUntilElementIsPresent("xpath", siteDropdownListElementXPath)
+				.getAttribute("class").contains("site-dropdown-open"))) 
 		dashboardPage.clickOnSiteContentOption();
 
 		// Assert that the site content is expanded
-		String siteContentExpanded = this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayed( "xpath", adminConsoleXpath).getText();
-		
+		String siteContentExpanded = this.getWebDriverManager()
+				.driverWaitUntilElementIsPresentAndDisplayed("xpath", adminConsoleXpath).getText();
+
 		Assert.assertEquals(siteContentExpanded, "Site Config");
 
 		// Collapse the site content panel
 		dashboardPage.clickOnSiteContentOption();
 
-		// Assert that the site content is Collapsed
-		Assert.assertFalse(this.driverManager.isElementPresentByXpath(adminConsoleXpath));
+		getWebDriverManager().waitUntilSidebarCloses();
+
+		// Assertion
+		WebElement element = getWebDriverManager().getDriver().findElement(By.xpath(adminConsoleXpath));
+		Assert.assertFalse(element.isDisplayed());
 	}
 
+	@Parameters({"testId"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testId) {
+		apiTestHelper.deleteSite(testId);
+	}
 }

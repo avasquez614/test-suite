@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="craftercms - Studio Contextual Navigation TestSuite" parallel="tests" thread-count="4" verbose="3" preserve-order="false">
+    <parameter name="blueprint" value="empty"/>
+	<test name="Delete Option Test">
+        <parameter name="testId" value="dashboardfix01"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.DeleteOptionTest"/>
+		</classes>
+	</test>
+	<test name="Duplicate Option Test">
+        <parameter name="testId" value="dashboardfix02"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.DuplicateOptionTest"/>
+		</classes>
+	</test>
+	<test name="Edit Option Test">
+        <parameter name="testId" value="dashboardfix03"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.EditOptionTest"/>
+		</classes>
+	</test>
+	<test name="Enable Disable Editing In Context Test">
+        <parameter name="testId" value="dashboardfix04"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.EnableDisableEditingInContextTest"/>
+		</classes>
+	</test>
+	<test name="History Option Test">
+        <parameter name="testId" value="dashboardfix05"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.HistoryOptionTest"/>
+		</classes>
+	</test>
+	<test name="Publishing Site Test">
+        <parameter name="testId" value="dashboardfix06"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.PublishingSiteTest"/>
+		</classes>
+	</test>
+	<test name="Dependencies Option Test">
+        <parameter name="testId" value="dashboardfix07"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.DependenciesOptionTest"/>
+		</classes>
+	</test>
+	<test name="Verify that the application shows the account management page when user clicks on settings contextual navigation bar option">
+        <parameter name="testId" value="dashboardfix08"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.ShowAccountManagementTest"/>
+		</classes>
+	</test>
+	<test name="Verify that application shows the Publish Status dialog when users click on Publishing Status">
+        <parameter name="testId" value="dashboardfix09"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.VerifyThatApplicationDisplaysPublishStatusDialogTest"/>
+		</classes>
+	</test>
+	<test name="Verify that application performs the proper action when a top bar Search option is clicked">
+        <parameter name="testId" value="dashboardfix10"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.VerifyThatApplicationDisplaysTheSearchPageWhenSearchOptionIsClickedTest"/>
+		</classes>
+	</test>
+	<test name="Verify that application displays the Preview Tools icon when in preview and that the Preview Tools panel is displayed when the icon is clicked">
+        <parameter name="testId" value="dashboardfix11"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.VerifyThatApplicationDisplaysThePreviewToolsWhenSearchOptionIsClickedTest"/>
+		</classes>
+	</test>
+	<test name="Verify that application displays the In-Context Edit icon when in preview for all users except user Reviewer and that the in-context edit appears in the preview page">
+        <parameter name="testId" value="dashboardfix12"/>
+        <parameter name="testUser" value="reviewercontextedit012"/>
+        <parameter name="testGroup" value="site_reviewer"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.VerifyThatApplicationDisplaysTheInContextEditIconProperlyTest"/>
+		</classes>
+	</test>
+	<test name="Verify that the compare history works properly">
+        <parameter name="testId" value="dashboardfix13"/>
+        <parameter name="blueprint" value="editorial"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.VerifyThatCompareHistoryWorksProperly"/>
+		</classes>
+	</test>
+	<test name="Verify that the application displays the proper set of available options on the top bar for a selected content page">
+        <parameter name="testId" value="dashboardfix14"/>
+        <parameter name="blueprint" value="editorial"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.contextualnavigationtestcases.VerifyThatApplicationDisplaysTheProperSetOfAvailableOptionsTest"/>
+		</classes>
+	</test>
+</suite> <!-- Suite -->

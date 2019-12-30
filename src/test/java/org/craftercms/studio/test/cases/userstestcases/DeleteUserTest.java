@@ -1,21 +1,25 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.userstestcases;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-
-import java.util.List;
-
-import org.craftercms.studio.test.pages.CreateSitePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.pages.UsersPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
 
 /**
  * 
@@ -23,77 +27,39 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class DeleteUserTest {
-
-	private WebDriverManager driverManager;
-	private LoginPage loginPage;
-	private CreateSitePage createSitePage;
-	private UsersPage usersPage;
+public class DeleteUserTest extends StudioBaseTest {
 
 	private String userName;
 	private String password;
-	private String deleteYesButtonXpath;
-	private String usersRowsXpath;
-	private String newUserButtonXpath;
 
-
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager uIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-	
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-		
-		this.loginPage = new LoginPage(driverManager, uIElementsPropertiesManager);
-		this.createSitePage = new CreateSitePage(driverManager, uIElementsPropertiesManager);
-		this.usersPage = new UsersPage(driverManager, uIElementsPropertiesManager);
-
+	@Parameters({"testUser"})
+	@BeforeMethod
+	public void beforeTest(String testUser) {
+		apiTestHelper.createUser(testUser);
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		deleteYesButtonXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.users.deleteyesbutton");
-		usersRowsXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.users.usersrows");
-		newUserButtonXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.users.newuserbutton");
 	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
-
-	@Test(priority = 0)
-
-	public void deleteUser() {
+	@Parameters({"testUser"})
+	@Test()
+	public void verifyThatStudioAllowsToDeleteAnUserTest(String testUser) {
 
 		// login to application
 		loginPage.loginToCrafter(userName, password);
 
+		// Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
+
 		// click On Users option
 		createSitePage.clickOnUsersOption();
 
-		// Click on delete user
-		usersPage.clickOnDeleteUserCreated();
+		// Deleting user
+		this.getWebDriverManager().waitForAnimation();
+		this.getWebDriverManager().waitUntilPageLoad();
 
-		// Confirmation to delete user connected
-		this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayed("xpath",
-						deleteYesButtonXpath)
-				.click();
+		usersPage.deleteUser(testUser);
 
 		// Assert new users created is deleted
-		driverManager.getDriver().navigate().refresh();
-		driverManager.getDriver().navigate().refresh();
-		
-		this.driverManager.isElementPresentAndClickableByXpath(newUserButtonXpath);
-		
-		Assert.assertTrue(this.driverManager.elementHasChildsByXPath(usersRowsXpath));	
-		List<WebElement> usersList = this.driverManager.getDriver().findElements(By.xpath(usersRowsXpath));
-		Assert.assertTrue(usersList.size()==1);
-
+		this.getWebDriverManager().waitForAnimation();
 	}
 }

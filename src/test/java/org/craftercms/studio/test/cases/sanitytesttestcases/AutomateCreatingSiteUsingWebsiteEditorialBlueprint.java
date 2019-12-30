@@ -1,19 +1,27 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.sanitytesttestcases;
 
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-
-import static org.testng.Assert.assertFalse;
-
-import org.craftercms.studio.test.pages.CreateSitePage;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.craftercms.studio.test.cases.StudioBaseTest;
 import org.openqa.selenium.WebElement;
 
 /**
@@ -23,126 +31,71 @@ import org.openqa.selenium.WebElement;
  *
  */
 //Test Case created to cover ticket https://github.com/craftercms/craftercms/issues/1445
-public class AutomateCreatingSiteUsingWebsiteEditorialBlueprint {
-
-	private WebDriverManager driverManager;
-	private LoginPage loginPage;
-	private HomePage homePage;
-	private CreateSitePage createSitePage;
+public class AutomateCreatingSiteUsingWebsiteEditorialBlueprint extends StudioBaseTest{
 
 	private String userName;
 	private String password;
 	private String siteDropdownElementXPath;
 	private String createSiteErrorNotificationWindow;
 	private String editorialSitePreviewPageTitle;
-	private String createSiteButtonXpath;
-	private String menuSitesButton;
-	
-	@BeforeClass
+
+	@BeforeMethod
 	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager uIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-
-		this.loginPage = new LoginPage(this.driverManager, uIElementsPropertiesManager);
-		this.homePage = new HomePage(this.driverManager, uIElementsPropertiesManager);
-		this.createSitePage = new CreateSitePage(this.driverManager, uIElementsPropertiesManager);
-
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		siteDropdownElementXPath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		siteDropdownElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.sitedropdown");
-		createSiteErrorNotificationWindow = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		createSiteErrorNotificationWindow = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sites.createsite.errowindow");
-		editorialSitePreviewPageTitle = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		editorialSitePreviewPageTitle = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("preview.editorial.site.title");
-		createSiteButtonXpath= uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.sites.createsitebutton");
-		menuSitesButton = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("preview.sites.menu.button");
-	}
-	
-	public void deleteSite() {
-		
-		this.driverManager.getDriver().switchTo().defaultContent();
-		
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable(
-				"xpath", menuSitesButton).click();
-
-		// Click on Delete icon
-		this.driverManager.isElementPresentAndClickableByXpath(createSiteButtonXpath);
-		homePage.clickOnDeleteSiteIcon();
-
-		// Click on YES to confirm the delete.
-		homePage.clickOnYesToDeleteSite();
-		
-		//Refresh the page
-		driverManager.getDriver().navigate().refresh();
-
 	}
 
-	@AfterClass
-	public void afterTest() {
-		deleteSite();
-		driverManager.closeConnection();
-	}
-
-	@Test(priority = 0)
-	public void createSiteWithWebSiteEditorialBluePrintTest() {
+	@Parameters({"testId"})
+	@Test()
+	public void automateCreatingSiteUsingWebsiteEditorialBlueprint(String testId) {
 
 		// login to application
 		loginPage.loginToCrafter(
 				userName,password);
+		
+		//Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
 
 		// Click on the create site button
-
 		homePage.clickOnCreateSiteButton();
 
-		// Filling the name of site
-
-		createSitePage.fillSiteName();
-
-		// Filling the description of the site
-
-		createSitePage.fillDescription("Description");
-
-		// Open blueprint combo
-		// Select blueprint
-
-		createSitePage.selectWebSiteEditorialBluePrintOption();
-
-		// Click on Create button
-
-		createSitePage.clickOnCreateSiteButton();
+		//select blueprint, set site name, set description, click review and create site
+		createSitePage.selectWebSiteEditorialBluePrintOption()
+				.setSiteName(testId)
+				.setDescription("Description")
+				.clickReviewAndCreate()
+				.clickOnCreateButton();
 		
 		//Verify No error messages after clicking on the Create button
 		
-		assertFalse(driverManager.isElementPresentByXpath(createSiteErrorNotificationWindow));
-		
-		this.driverManager.waitWhileElementIsDisplayedAndClickableByXpath(siteDropdownElementXPath);
-		
+		Assert.assertFalse(getWebDriverManager().isElementPresentByXpath(createSiteErrorNotificationWindow));
+		this.getWebDriverManager().waitWhileElementIsDisplayedAndClickableByXpath(siteDropdownElementXPath);
 
 		//Assert Page is displayed
-		this.driverManager.waitWhileElementIsDisplayedAndClickableByXpath(siteDropdownElementXPath);
-		
 		//Move to the content frame
-		Assert.assertTrue(this.driverManager.isElementPresentAndClickableByXpath(siteDropdownElementXPath));
+		Assert.assertTrue(this.getWebDriverManager().isElementPresentAndClickableByXpath(siteDropdownElementXPath));
 		
-		driverManager.getDriver().switchTo().defaultContent();
-        driverManager.getDriver().switchTo().frame(this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+		getWebDriverManager().getDriver().switchTo().defaultContent();
+        getWebDriverManager().getDriver().switchTo().frame(this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
                 "id", "engineWindow"));
         
 		//Assert Title of the page correspond to a Editorial Blueprint site
-	
-        WebElement siteTitle = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+        WebElement siteTitle = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
     		  "xpath", editorialSitePreviewPageTitle);
 
         Assert.assertTrue(siteTitle.getText().contains("Hi, I’m Editorial"));	
 		
 	}
 
+	@Parameters({"testId"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testId) {
+		apiTestHelper.deleteSite(testId);
+	}
 }

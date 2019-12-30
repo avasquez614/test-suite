@@ -1,17 +1,27 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.contextualnavigationtestcases;
 
-import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.pages.PreviewPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
 
 /**
  * 
@@ -19,58 +29,35 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class EnableDisableEditingInContextTest {
-
-	WebDriver driver;
-
-	private WebDriverManager driverManager;
-
-	private LoginPage loginPage;
-
-	private HomePage homePage;
-
-	private PreviewPage previewPage;
+public class EnableDisableEditingInContextTest extends StudioBaseTest {
 
 	private String userName;
 	private String password;
-
 	private String previewToolsInContextualEditingButton;
 
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-
-		UIElementsPropertiesManager UIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-
-		this.loginPage = new LoginPage(driverManager, UIElementsPropertiesManager);
-		this.homePage = new HomePage(driverManager, UIElementsPropertiesManager);
-		this.previewPage = new PreviewPage(driverManager, UIElementsPropertiesManager);
-
+	@Parameters({"testId", "blueprint"})
+	@BeforeMethod
+	public void beforeTest(String testId, String blueprint) {
+		apiTestHelper.createSite(testId, "", blueprint);
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		previewToolsInContextualEditingButton = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		previewToolsInContextualEditingButton = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.previewtools.incontextualeditingbutton");
+		
 	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
-
-	@Test(priority = 0)
-
-	public void verifyThatTheInContextEditingIsEnabledOrDisabledTest() {
+	@Parameters({"testId"})
+	@Test()
+	public void verifyThatTheInContextEditingIsEnabledOrDisabledTest(String testId) {
 
 		// login to application
 		loginPage.loginToCrafter(userName, password);
+		
+		//Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
 
 		// go to dashboard page
-		homePage.goToPreviewPage();
+		homePage.goToPreviewPage(testId);
 
 		// Click on Preview Tools icon
 		previewPage.clickOnPreviewTools();
@@ -82,10 +69,15 @@ public class EnableDisableEditingInContextTest {
 		previewPage.clickToEnableDisableInContextEditing();
 
 		// Assert
-		String editIconActive = this.driverManager
+		String editIconActive = this.getWebDriverManager()
 				.driverWaitUntilElementIsPresentAndDisplayed("xpath", previewToolsInContextualEditingButton).getText();
 		Assert.assertEquals(editIconActive, "In-Context Edit Off");
 
 	}
 
+	@Parameters({"testId"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testId) {
+		apiTestHelper.deleteSite(testId);
+	}
 }

@@ -54,3 +54,4 @@ bin/*
 !/bin/.keep
 test-properties.properties
 /received-emails/
+/executionscreenshots/

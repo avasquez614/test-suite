@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="craftercms - Studio Users TestSuite" parallel="tests" thread-count="4" verbose="3" preserve-order="false">
+	<test name="Try to delete user connected test">
+		<classes>
+			<class name="org.craftercms.studio.test.cases.userstestcases.TryToDeleteUserConnectedTest"/>
+		</classes>
+	</test>
+	<test name="New User Test">
+        <parameter name="testUser" value="users001"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.userstestcases.AddNewUserTest"/>
+		</classes>
+	</test>
+	<test name="Delete User Test">
+		<parameter name="testUser" value="users003"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.userstestcases.DeleteUserTest"/>
+		</classes>
+	</test>
+	<test name="Edit User Test">
+        <parameter name="testUser" value="users0044"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.userstestcases.EditUserTest"/>
+		</classes>
+	</test>
+	<test name="Design of Users Page Test">
+		<classes>
+			<class name="org.craftercms.studio.test.cases.userstestcases.DesignOfUsersPageTest"/>
+		</classes>
+	</test>
+	<test name="Users Per Page Test">
+        <parameter name="testUser" value="usersid01"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.userstestcases.UsersPerPageTest"/>
+		</classes>
+	</test>
+	<test name="Pagination of List Users Page Test">
+        <parameter name="testUser" value="users005"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.userstestcases.PaginationOfListOfUsersTest"/>
+		</classes>
+	</test>
+	<test name="Verify the language settings are persistant per browser">
+		<parameter name="testUser1" value="users0101"/>
+		<parameter name="testUser2" value="users0102"/>
+		<parameter name="langUser1" value="español"/>
+		<parameter name="langUser2" value="Deutsch"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.userstestcases.VerifyLanguageSettingsTest"/>
+		</classes>
+	</test>
+	<test name="Verify that Studio shows validation for Add User fields">
+		<parameter name="testUser" value="users001"/>
+		<classes>
+			<class name="org.craftercms.studio.test.cases.userstestcases.ValidationsFieldsAddUserTest"/>
+		</classes>
+	</test>
+</suite> <!-- Suite -->

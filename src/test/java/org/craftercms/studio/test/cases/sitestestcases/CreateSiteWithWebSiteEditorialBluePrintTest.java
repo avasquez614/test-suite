@@ -1,16 +1,26 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.craftercms.studio.test.cases.sitestestcases;
 
+import org.craftercms.studio.test.cases.StudioBaseTest;
 import org.testng.annotations.Test;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.craftercms.studio.test.pages.CreateSitePage;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.testng.annotations.BeforeMethod;
 
 /**
  * 
@@ -19,75 +29,42 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class CreateSiteWithWebSiteEditorialBluePrintTest {
-
-	private WebDriverManager driverManager;
-	private LoginPage loginPage;
-	private HomePage homePage;
-	private CreateSitePage createSitePage;
+public class CreateSiteWithWebSiteEditorialBluePrintTest extends StudioBaseTest {
 
 	private String userName;
 	private String password;
 	private String siteDropdownElementXPath;
 
-	@BeforeClass
+	@BeforeMethod
 	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager uIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-
-		this.loginPage = new LoginPage(this.driverManager, uIElementsPropertiesManager);
-		this.homePage = new HomePage(this.driverManager, uIElementsPropertiesManager);
-		this.createSitePage = new CreateSitePage(this.driverManager, uIElementsPropertiesManager);
-
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		siteDropdownElementXPath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		siteDropdownElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.sitedropdown");
-
-	}
-
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
 	}
 
 	@Test(priority = 0)
 	public void createSiteWithWebSiteEditorialBluePrintTest() {
 
 		// login to application
-		loginPage.loginToCrafter(
-				userName,password);
+		loginPage.loginToCrafter(userName, password);
+
+		getWebDriverManager().waitUntilLoginCloses();
 
 		// Click on the create site button
-
 		homePage.clickOnCreateSiteButton();
 
-		// Filling the name of site
+		//select blueprint, set site name, set description, click review and create site
+		createSitePage.selectWebSiteEditorialBluePrintOption()
+				.setSiteName()
+				.setDescription("Description")
+				.clickReviewAndCreate()
+				.clickOnCreateButton();
 
-		createSitePage.fillSiteName();
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", siteDropdownElementXPath);
 
-		// Filling the description of the site
-
-		createSitePage.fillDescription("Description");
-
-		// Open blueprint combo
-		// Select blueprint
-
-		createSitePage.selectWebSiteEditorialBluePrintOption();
-
-		// Click on Create button
-
-		createSitePage.clickOnCreateSiteButton();
-	
-		this.driverManager.waitWhileElementIsDisplayedAndClickableByXpath(siteDropdownElementXPath);
-		
-
-		Assert.assertTrue(this.driverManager.isElementPresentAndClickableByXpath(siteDropdownElementXPath));
+		Assert.assertTrue(this.getWebDriverManager()
+				.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", siteDropdownElementXPath)
+				.isDisplayed());
 	}
-
 }

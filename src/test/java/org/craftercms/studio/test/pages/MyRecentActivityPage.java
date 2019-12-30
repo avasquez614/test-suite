@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.pages;
 
 import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
@@ -15,7 +31,6 @@ public class MyRecentActivityPage {
 	private WebDriverManager driverManager;
     private String expandDefaultSection;
     private String tittleField1;
-    private String saveCloseButton;
    
     /**
      * 
@@ -26,12 +41,11 @@ public class MyRecentActivityPage {
 
         expandDefaultSection = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("frame1.expand_Default_Section");
         tittleField1 = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("frame1.tittle_Field1");
-        saveCloseButton = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("frame1.save_Close_Button");
     }
 	// Expand default section
 
 	public void clickExpandOption() {
-		WebElement expandOpt = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "id", expandDefaultSection);
+		WebElement expandOpt = this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable( "xpath", expandDefaultSection);
 		expandOpt.click();
 	}
 
@@ -63,14 +77,4 @@ public class MyRecentActivityPage {
 		this.typeNewTextOnBodyField(newText1);
 	}
 
-	// Save and close
-	public void saveAndClose() {
-		WebElement clearTitleField = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "id", saveCloseButton);
-		clearTitleField.click();
-	}
-
-	public void clickOnSaveAndCloseButton() {
-		// Save and close
-		this.saveAndClose();
-	}
 }

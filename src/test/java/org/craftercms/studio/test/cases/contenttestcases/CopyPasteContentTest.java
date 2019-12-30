@@ -1,18 +1,27 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.contenttestcases;
 
-import org.openqa.selenium.WebDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.DashboardPage;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.pages.PreviewPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
 
 /**
  * 
@@ -20,80 +29,42 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class CopyPasteContentTest {
-
-	WebDriver driver;
-
-	private WebDriverManager driverManager;
-
-	private LoginPage loginPage;
-
-	private HomePage homePage;
-
-	private DashboardPage dashboardPage;
-
-	private PreviewPage previewPage;
+public class CopyPasteContentTest extends StudioBaseTest {
 
 	private String userName;
 	private String password;
-
 	private String createFormFrameElementCss;
-
 	private String createFormMainTitleElementXPath;
-
-	private String createFormSaveAndCloseElementId;
-
-	private String createFromInternalNameXpath;
-
+	private String createFormSaveAndCloseElement;
 	private String copyTestItemXpath;
+	private String randomURL;
+	private String randomInternalName;
 
-	private String homeItemXpath;
-
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager UIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-		
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-
-		this.loginPage = new LoginPage(driverManager, UIElementsPropertiesManager);
-		this.homePage = new HomePage(driverManager, UIElementsPropertiesManager);
-		this.dashboardPage = new DashboardPage(driverManager, UIElementsPropertiesManager);
-		this.previewPage = new PreviewPage(driverManager, UIElementsPropertiesManager);
-
+	@Parameters({"testId", "blueprint"})
+	@BeforeMethod
+	public void beforeTest(String siteId, String blueprint) {
+		apiTestHelper.createSite(siteId, "", blueprint);
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		createFormFrameElementCss = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormFrameElementCss = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.createformframe");
-		createFormSaveAndCloseElementId = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormSaveAndCloseElement = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.saveandclosebutton");
-		createFormMainTitleElementXPath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormMainTitleElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.createformTitle");
-		createFromInternalNameXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.createformfiletitle");
-		copyTestItemXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		copyTestItemXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.sitecontent.copytestitem");
-		homeItemXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.home");
-	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
+		randomURL = "Test1";
+		randomInternalName = "AboutUS";
 	}
 
 	public void changeBodyToNotRequiredOnEntryContent() {
-
 		previewPage.changeBodyOfEntryContentPageToNotRequired();
-
 	}
 
 	public void createContent() {
 		// right click to see the the menu
-
 		dashboardPage.rightClickToSeeMenu();
 
 		// Select Entry Content Type
@@ -102,41 +73,34 @@ public class CopyPasteContentTest {
 		// Confirm the Content Type selected
 		dashboardPage.clickOKButton();
 
-		// Switch to the iframe
-		driverManager.getDriver().switchTo().defaultContent();
-		driverManager.getDriver().switchTo().frame(this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
-				 "cssSelector", createFormFrameElementCss));
-		
-		this.driverManager.isElementPresentAndClickableBycssSelector(createFormFrameElementCss);
-		
-		// Set basics fields of the new content created
-		dashboardPage.setBasicFieldsOfNewContent("Test1", "AboutUS");
+		getWebDriverManager().usingCrafterForm("cssSelector", createFormFrameElementCss, () -> {
+			// creating random values for URL field and InternalName field
 
-		// Set the title of main content
-		this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayed( "xpath", createFormMainTitleElementXPath)
-				.sendKeys("MainTitle");
-		
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "id", createFormSaveAndCloseElementId)
-				.click();
+			// Set basics fields of the new content created
+			dashboardPage.setBasicFieldsOfNewContent(randomURL, randomInternalName);
 
-		this.driverManager.isElementPresentByXpath(homeItemXpath);
-		
-		// Switch back to the dashboard page
-		driverManager.getDriver().switchTo().defaultContent();
+			// Set the title of main content
+			getWebDriverManager().sendText("xpath", createFormMainTitleElementXPath, "MainTitle");
 
+			// save and close
+
+			this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", createFormSaveAndCloseElement)
+					.click();
+		});
+
+		this.getWebDriverManager().waitUntilSidebarOpens();
 	}
 
-	@Test(priority = 0)
-	public void copyAndPastePageUsingContextualClickOptionsTest() {
+	@Parameters({"testId"})
+	@Test()
+	public void copyAndPastePageUsingContextualClickOptionsTest(String testId) {
 
 		loginPage.loginToCrafter(userName, password);
 
-		// go to preview page
-		homePage.goToPreviewPage();
+		getWebDriverManager().waitUntilLoginCloses();
 
-		// reload page
-		driverManager.getDriver().navigate().refresh();
+		// go to preview page
+		homePage.goToPreviewPage(testId);
 
 		// body not required
 		this.changeBodyToNotRequiredOnEntryContent();
@@ -148,9 +112,8 @@ public class CopyPasteContentTest {
 		this.createContent();
 
 		// reload page
-		driverManager.getDriver().navigate().refresh();
+		getWebDriverManager().getDriver().navigate().refresh();
 
-		this.driverManager.waitUntilPageLoad();
 		// Expand Home Tree
 		dashboardPage.expandHomeTree();
 
@@ -161,33 +124,27 @@ public class CopyPasteContentTest {
 		dashboardPage.rightClickToPasteOption();
 
 		// Reload page
-		driverManager.getDriver().navigate().refresh();
+		getWebDriverManager().getDriver().navigate().refresh();
 
 		// Click on edit option of recent activity section
-		homePage.clickOnEditOptionRecentActivity();
+		dashboardPage.clickOnEditOptionRecentActivity();
 
-		// Switch to the iframe
-		driverManager.getDriver().switchTo().defaultContent();
-		driverManager.getDriver().switchTo().frame(this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
-				 "cssSelector", createFormFrameElementCss));
+		this.getWebDriverManager().waitForAnimation();
 		
-		this.driverManager.isElementPresentAndClickableBycssSelector(createFormFrameElementCss);
+		getWebDriverManager().usingCrafterForm("cssSelector", createFormFrameElementCss, () -> {
+			// edit internal name
+			dashboardPage.editInternalName("COPY");	
+		});
 		
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "xpath",
-				createFromInternalNameXpath).clear();
-
-		// edit internal name
-		dashboardPage.editInternalName("COPY");
-
-		// Switch back to the dashboard page
-		driverManager.getDriver().switchTo().defaultContent();
-
-		// reload page
-		driverManager.getDriver().navigate().refresh();
-
-		// Assert of the content copied
-		Assert.assertTrue(this.driverManager.isElementPresentByXpath(copyTestItemXpath));
+		this.getWebDriverManager().waitForAnimation();
+		Assert.assertNotNull(getWebDriverManager().waitUntilElementIsDisplayed("xpath", copyTestItemXpath)
+				,"Content page is not displayed on the Site Content panel");
 
 	}
 
+	@Parameters({"testId"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testId) {
+		apiTestHelper.deleteSite(testId);
+	}
 }

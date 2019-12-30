@@ -1,122 +1,121 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.contextualnavigationtestcases;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.DashboardPage;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.pages.PreviewPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+
+import org.apache.logging.log4j.LogManager;
+
+import org.apache.logging.log4j.Logger;
+
+import org.craftercms.studio.test.cases.StudioBaseTest;
+
 import org.openqa.selenium.By;
+import org.openqa.selenium.TimeoutException;
 
 /**
  * 
- * @author Gustavo Andrei Ortiz Alfaro
+ * @author luishernandez
  *
  */
 
-public class PublishingSiteTest {
-
-	private WebDriverManager driverManager;
-
-	private LoginPage loginPage;
-
-	private HomePage homePage;
-
-	private PreviewPage previewPage;
-
-	private DashboardPage dashboardPage;
-
+public class PublishingSiteTest extends StudioBaseTest {
 	private String userName;
 	private String password;
 	private String createFormFrameElementCss;
 	private String createFormMainTitleElementXPath;
-	private String createFormSaveAndCloseElementId;
-	private String studioLogo;
+	private String createFormSaveAndCloseElement;
 	private String testingContentItem;
 	private String topNavStatusIcon;
-	private String siteDropdownElementXPath;
-
 	private String homeXpath;
+	private int numberOfAttemptsForElementsDisplayed;
 
-	private String crafterLogoId;
+	private static Logger logger = LogManager.getLogger(PublishingSiteTest.class);
 
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager UIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-
-		this.loginPage = new LoginPage(driverManager, UIElementsPropertiesManager);
-		this.homePage = new HomePage(driverManager, UIElementsPropertiesManager);
-		this.previewPage = new PreviewPage(driverManager, UIElementsPropertiesManager);
-		this.dashboardPage = new DashboardPage(driverManager, UIElementsPropertiesManager);
-
+	@Parameters({"testId", "blueprint"})
+	@BeforeMethod
+	public void beforeTest(String testId, String blueprint) {
+		apiTestHelper.createSite(testId, "", blueprint);
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		createFormFrameElementCss = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormFrameElementCss = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.createformframe");
-		createFormMainTitleElementXPath = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.createformMainTitle");
-		createFormSaveAndCloseElementId = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.saveandclosebutton");
-		studioLogo = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("general.studiologo");
-		testingContentItem = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormMainTitleElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("general.createformTitle");
+		createFormSaveAndCloseElement = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.general.saveandclosebutton");
+		testingContentItem = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.testingcontentitem");
-		topNavStatusIcon = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		topNavStatusIcon = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.statustopbaricon");
-		siteDropdownElementXPath = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("complexscenarios.general.sitedropdown");
-		homeXpath = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("general.home");
-		crafterLogoId = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("general.studiologo");
+		homeXpath = uiElementsPropertiesManager.getSharedUIElementsLocators().getProperty("general.home");
+		this.numberOfAttemptsForElementsDisplayed = Integer.parseInt(constantsPropertiesManager
+				.getSharedExecutionConstants().getProperty("crafter.numberofattemptsforelementdisplayed"));
 
-	}
-
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
 	}
 
 	public void changeBodyToNotRequiredOnEntryContent() {
-
 		previewPage.changeBodyOfEntryContentPageToNotRequired();
 	}
 
-	public void createContent() {
+	public void createNewContent() {
 
 		// right click to see the the menu
+
 		dashboardPage.rightClickToSeeMenu();
 
 		// Select Entry Content Type
+
 		dashboardPage.clickEntryCT();
 
 		// Confirm the Content Type selected
+
 		dashboardPage.clickOKButton();
 
 		// Switch to the iframe
-		driverManager.getDriver().switchTo().defaultContent();
-		driverManager.getDriver().switchTo().frame(this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayed("cssSelector", createFormFrameElementCss));
-		this.driverManager.isElementPresentAndClickableBycssSelector(createFormFrameElementCss);
 
-		// Set basics fields of the new content created
-		dashboardPage.setBasicFieldsOfNewContent("Test1", "Testing1");
-		// Set the title of main content
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("cssSelector", createFormMainTitleElementXPath)
-				.sendKeys("MainTitle");
-		// save and close
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", createFormSaveAndCloseElementId).click();
-		// reload page
-		driverManager.getDriver().navigate().refresh();
+		getWebDriverManager().usingCrafterForm("cssSelector", createFormFrameElementCss, () -> {
+
+			// Set basics fields of the new content created
+
+			logger.info("Set the fields of the new content");
+
+			dashboardPage.setBasicFieldsOfNewContent("Test1", "Testing1");
+
+			// Set the title of main content
+
+			this.getWebDriverManager().sendText("xpath", createFormMainTitleElementXPath, "MainTitle");
+
+			// save and close
+
+			logger.info("Click on Save and close button");
+
+			this.getWebDriverManager()
+
+					.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", createFormSaveAndCloseElement)
+					.click();
+
+		});
 
 	}
 
@@ -127,69 +126,85 @@ public class PublishingSiteTest {
 		previewPage.clickOnApprovePublish();
 
 		// submit
+
 		previewPage.clickOnSubmitButtonOfApprovePublish();
 
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", homeXpath);
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", homeXpath);
+
 	}
 
-	@Test(priority = 0)
-
-	public void publishingSite() {
+	@Parameters({"testId"})
+	@Test()
+	public void publishingSite(String testId) {
 
 		// login to application
 
 		loginPage.loginToCrafter(userName, password);
 
-		// go to preview page
-		homePage.goToPreviewPage();
+		// Wait for login page to closes
+
+		getWebDriverManager().waitUntilLoginCloses();
+
+		// goto preview page
+
+		homePage.goToPreviewPage(testId);
+
+		// select the content type to the test
 
 		changeBodyToNotRequiredOnEntryContent();
 
-		// go to dashboard
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", studioLogo).click();
+		// Switch to the form
+
+		getWebDriverManager().getDriver().switchTo().defaultContent();
 
 		// expand pages folder
+
 		dashboardPage.expandPagesTree();
 
-		// create content
-		createContent();
+		// expand home content
+		this.getWebDriverManager().waitUntilPageLoad();
+		this.getWebDriverManager().waitUntilSidebarOpens();
+	
 
 		dashboardPage.expandHomeTree();
 
-		// wait for element is clickeable
-		driverManager.getDriver().navigate().refresh();
+		// create a new content
 
-		//this.driverManager.isElementPresentAndClickableByXpath(testingContentItem);
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", testingContentItem).click();
+		createNewContent();
+
+		this.getWebDriverManager().waitForAnimation();
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", testingContentItem).click();
 
 		// approve and publish
 		approveAndPublish();
 
-		driverManager.getDriver().navigate().refresh();
-		driverManager.getDriver().navigate().refresh();
-
-		driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("id", crafterLogoId).click();
+		this.getWebDriverManager().waitForAnimation();
 
 		// expand pages folder
 		dashboardPage.expandPagesTree();
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", testingContentItem).click();
 
-		this.driverManager.waitWhileElementIsPresentByXpath(topNavStatusIcon);
-		this.driverManager.waitWhileElementIsDisplayedAndClickableByXpath(siteDropdownElementXPath);
-
-		String isLifeContent = "";
-
-		while (!(isLifeContent.contains("undefined live"))) {
-			isLifeContent = this.driverManager.getDriver().findElement(By.xpath(topNavStatusIcon))
-					.getAttribute("class");
-			driverManager.getDriver().navigate().refresh();
-			this.dashboardPage.expandHomeTree();
+		for (int i = 0; i < numberOfAttemptsForElementsDisplayed; i++) {
+			try {
+				this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", testingContentItem)
+						.click();
+				this.getWebDriverManager().waitUntilAttributeContains("xpath", topNavStatusIcon, "class", "undefined live");
+				break;
+			} catch (TimeoutException e) {
+				this.getWebDriverManager().takeScreenshot("PageNotPublishedOnTopNavBar");
+				logger.warn("Content page is not published yet, checking again if it has published icon on top bar");
+				getWebDriverManager().getDriver().navigate().refresh();
+			}
 		}
 
-		String elementClassValue = this.driverManager.getDriver().findElement(By.xpath(topNavStatusIcon))
+		String elementClassValue = this.getWebDriverManager().getDriver().findElement(By.xpath(topNavStatusIcon))
 				.getAttribute("class");
 		Assert.assertTrue(elementClassValue.contains("undefined live"));
 
 	}
 
+	@Parameters({"testId"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testId) {
+		apiTestHelper.deleteSite(testId);
+	}
 }

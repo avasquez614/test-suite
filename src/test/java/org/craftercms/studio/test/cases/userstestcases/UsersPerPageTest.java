@@ -1,22 +1,33 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.userstestcases;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.util.List;
 
-import org.apache.commons.lang3.RandomStringUtils;
-import org.craftercms.studio.test.pages.CreateSitePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.pages.UsersPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
+
 
 /**
  * 
@@ -24,189 +35,78 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class UsersPerPageTest {
-
-	private WebDriverManager driverManager;
-
-	private LoginPage loginPage;
-
-	private CreateSitePage createSitePage;
-
-	private UsersPage usersPage;
+public class UsersPerPageTest extends StudioBaseTest{
 
 	private String userName;
 	private String password;
-
-	private String newUserFirstNameId;
-
-	private String newUserLastNameId;
-
-	private String newUserEmailId;
-
-	private String newUserUserNameId;
-
-	private String newUserPasswordId;
-
-	private String newUserPasswordVerificationId;
-
 	private String usersPerPageInputXpath;
-
-	private String deleteYesButtonXpath;
-
 	private String usersRowsXpath;
-
-	private String newUserButtonXpath;
-
 	private String lastNumberOfPaginationXpath;
 
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager uIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-
+	@Parameters({"testUser"})
+	@BeforeMethod
+	public void beforeTest(String testUser) {
+		apiTestHelper.createUser(testUser + "01");
+		apiTestHelper.createUser(testUser + "02");
+		apiTestHelper.createUser(testUser + "03");
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
-		newUserFirstNameId = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.users.firstname");
-		newUserLastNameId = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.users.lastname");
-		newUserEmailId = uIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("general.users.email");
-		newUserUserNameId = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.users.username");
-		newUserPasswordId = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.users.password");
-		newUserPasswordVerificationId = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.users.passwordVerification");
-		usersPerPageInputXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		usersPerPageInputXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.usersperpageinput");
-		deleteYesButtonXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.users.deleteyesbutton");
-		usersRowsXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
+		usersRowsXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("general.users.usersrows");
-		newUserButtonXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.users.newuserbutton");
-		lastNumberOfPaginationXpath = uIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("general.sites.pagination.lastnumberelement");
-		this.loginPage = new LoginPage(driverManager, uIElementsPropertiesManager);
-		this.createSitePage = new CreateSitePage(driverManager, uIElementsPropertiesManager);
-		this.usersPage = new UsersPage(driverManager, uIElementsPropertiesManager);
-	}
-
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
-
-	public void createUserRandom() {
-
-		createSitePage.clickOnUsersOption();
-
-		// click on new user button
-
-		usersPage.clickOnNewUser();
-
-		// Follow the form
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserFirstNameId).sendKeys("Name");
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserLastNameId).sendKeys("Last Name");
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserEmailId)
-				.sendKeys("email@email.com");
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserUserNameId)
-				.sendKeys("testuser"+RandomStringUtils.randomAlphabetic(5));
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserPasswordId).sendKeys("password");
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", newUserPasswordVerificationId)
-				.sendKeys("password");
-
-		// Save Button
-		usersPage.clickOnSaveNewUser();
-		this.driverManager.isElementPresentAndClickableByXpath(newUserButtonXpath);
+		lastNumberOfPaginationXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("general.users.pagination.lastnumberelement");
 	}
 
 	public void filters() {
 
 		// Show 1 user
-		this.driverManager.isElementPresentAndClickableByXpath( usersPerPageInputXpath);
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", usersPerPageInputXpath).clear();
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", usersPerPageInputXpath).sendKeys("1");
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", usersPerPageInputXpath);
+		getWebDriverManager().sendText("xpath",usersPerPageInputXpath,"1");
 
 		// Asser only 1 users displayed
-		this.driverManager.isElementPresentAndClickableByXpath(lastNumberOfPaginationXpath);
-		Assert.assertTrue(this.driverManager.elementHasChildsByXPath(usersRowsXpath));
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",lastNumberOfPaginationXpath);
+		Assert.assertTrue(this.getWebDriverManager().elementHasChildsByXPath(usersRowsXpath));
 
-		List<WebElement> usersList1item = this.driverManager.getDriver().findElements(By.xpath(usersRowsXpath));
+		List<WebElement> usersList1item = this.getWebDriverManager().getDriver().findElements(By.xpath(usersRowsXpath));
 		Assert.assertTrue(usersList1item.size() == 1);
 		
-		driverManager.getDriver().navigate().refresh();
-		
-		// Show 4 users
-		this.driverManager.isElementPresentAndClickableByXpath(usersPerPageInputXpath);
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", usersPerPageInputXpath).clear();
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", usersPerPageInputXpath).sendKeys("4");
+		// Show 3 users
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",usersPerPageInputXpath);
+		getWebDriverManager().sendText("xpath",usersPerPageInputXpath,"3");
 
-		// Asser 4 users displayed
-		this.driverManager.isElementPresentAndClickableByXpath(lastNumberOfPaginationXpath);
-		Assert.assertTrue(this.driverManager.elementHasChildsByXPath(usersRowsXpath));
+		// Assert 3 users displayed
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",lastNumberOfPaginationXpath);
+		Assert.assertTrue(this.getWebDriverManager().elementHasChildsByXPath(usersRowsXpath));
 
-		List<WebElement> usersList4items = this.driverManager.getDriver().findElements(By.xpath(usersRowsXpath));
-		Assert.assertTrue(usersList4items.size() == 4);
-
-		this.driverManager.isElementPresentAndClickableByXpath(usersPerPageInputXpath);
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", usersPerPageInputXpath).clear();
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", usersPerPageInputXpath).sendKeys("10");
-	}
-
-	public void deleteUsers() {
-		// Click on delete user
-		driverManager.getDriver().navigate().refresh();
-		usersPage.clickOnDeleteUserCreated();
-
-		// Confirmation to delete user connected
-
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", deleteYesButtonXpath).click();
-		driverManager.getDriver().navigate().refresh();
-
-		// Click on delete user
-
-		usersPage.clickOnDeleteUserCreated();
-
-		// Confirmation to delete user
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", deleteYesButtonXpath).click();
-		// wait for element is clickeable
-		driverManager.getDriver().navigate().refresh();
-
-		// Click on delete user
-		usersPage.clickOnDeleteUserCreated();
-
-		// Confirmation to delete user
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", deleteYesButtonXpath).click();
-
-		driverManager.getDriver().navigate().refresh();
-
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",usersPerPageInputXpath);
+		getWebDriverManager().sendText("xpath",usersPerPageInputXpath,"10");
+		this.getWebDriverManager().waitForAnimation();
 	}
 
 	@Test(priority = 0)
 	public void verifyThatTheShowUsersPerPageWorksProperlyTest() {
 		// login to application
 		loginPage.loginToCrafter(userName, password);
-
-		// Create user 1
-		createUserRandom();
-		// Create user 2
-		driverManager.getDriver().navigate().refresh();
-		createUserRandom();
-		// Create user 3
-		driverManager.getDriver().navigate().refresh();
-		createUserRandom();
-		driverManager.getDriver().navigate().refresh();
 		
+		//Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
+
+		createSitePage.clickOnUsersOption();
+
 		// filters
-		filters();
+		filters();	
+		
+		this.getWebDriverManager().waitForAnimation();
 		// Delete all users
-		deleteUsers();
 	}
 
+	@Parameters({"testUser"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testUser) {
+		apiTestHelper.deleteUser(testUser + "01");
+		apiTestHelper.deleteUser(testUser + "02");
+		apiTestHelper.deleteUser(testUser + "03");
+	}
 }

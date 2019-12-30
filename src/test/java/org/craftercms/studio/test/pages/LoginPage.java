@@ -1,9 +1,27 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.pages;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
 import org.craftercms.studio.test.utils.WebDriverManager;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 /**
  *
@@ -14,39 +32,41 @@ import org.openqa.selenium.WebElement;
 public class LoginPage {
 
 	private WebDriverManager driverManager;
-	private WebDriver driver;
-	private String userNameTextBoxLocator;
-	private String passwordTextBoxLocator;
-	private String loginButtonLocator;
-	private String sitesPageTitleLocator;
-	
-	public LoginPage(WebDriverManager driverManager, UIElementsPropertiesManager UIElementsPropertiesManager) {
+	private String userNameXpath;
+	private String passwordXpath;
+	private String loginXpath;
+	private String loginLanguageSelector;
+	private String userName;
+	private String password;
+	private static Logger logger = LogManager.getLogger(LoginPage.class);
+
+	public LoginPage(WebDriverManager driverManager,
+			UIElementsPropertiesManager UIElementsPropertiesManager) {
 		this.driverManager = driverManager;
 		this.driverManager.openConnection();
-		this.driver = this.driverManager.getDriver();
-		
-		userNameTextBoxLocator = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("login.txtbox_UserName");
-		passwordTextBoxLocator = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("login.txtbox_Password");
-		loginButtonLocator = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("login.btn_Login");
-		sitesPageTitleLocator = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("general.sites.pagetitle");
-	}
 
-	public LoginPage(WebDriver driver) {
-		this.driver = driver;
-	}
+		userNameXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("login.username");
+		passwordXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("login.password");
+		loginXpath = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("login.login");
+		loginLanguageSelector = UIElementsPropertiesManager.getSharedUIElementsLocators().getProperty("login.languageselector");
+		userName = getDriverManager().getConstantsPropertiesManager().getSharedExecutionConstants().getProperty("crafter.username");
+		password = getDriverManager().getConstantsPropertiesManager().getSharedExecutionConstants().getProperty("crafter.password");
 
+	}
 	// Set user name in textbox
 	public void setUserName(String strUserName) {
-		WebElement userCrafter = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "cssSelector", userNameTextBoxLocator);
+		WebElement userCrafter = this.driverManager.waitUntilElementIsClickable("xpath",
+				userNameXpath);
 		userCrafter.clear();
 		userCrafter.sendKeys(strUserName);
 	}
 
 	// Set password in password textbox
 	public void setPassword(String strPassword) {
-		WebElement pwdCrafter = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "id", passwordTextBoxLocator);
+		WebElement pwdCrafter = this.driverManager.waitUntilElementIsClickable("xpath",
+				passwordXpath);
 		pwdCrafter.clear();
 		pwdCrafter.sendKeys(strPassword);
 
@@ -54,20 +74,41 @@ public class LoginPage {
 
 	// Click on login button
 	public void clickLogin() {
-		WebElement loginButton = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "xpath", loginButtonLocator);
-		loginButton.click();
+		driverManager.clickElement("xpath", loginXpath);
+	}
+
+	// Login to crafter
+	public void loginToCrafter() {
+		logger.info("Login into Crafter with admin user");
+		setUserName(userName);
+		setPassword(password);
+		clickLogin();
+		driverManager.waitUntilLoginCloses();
 	}
 
 	// Login to crafter
 	public void loginToCrafter(String strUserName, String strPasword) {
+		logger.info("Login into Crafter");
+		// Fill user name
+		this.setUserName(strUserName);
+		// Fill password
+		this.setPassword(strPasword);
+		// Click Login button
+		this.driverManager.waitForAnimation();
+		this.clickLogin();
+
+		// Wait for login page to close
+		this.driverManager.waitUntilLoginCloses();
+	}
+
+	public void loginToCrafterWithWrongCredentials(String strUserName, String strPasword) {
+		logger.info("Login into Crafter");
 		// Fill user name
 		this.setUserName(strUserName);
 		// Fill password
 		this.setPassword(strPasword);
 		// Click Login button
 		this.clickLogin();
-		this.driverManager.isElementPresentByXpath(sitesPageTitleLocator);
-
 	}
 
 	public WebDriverManager getDriverManager() {
@@ -78,12 +119,13 @@ public class LoginPage {
 		this.driverManager = driverManager;
 	}
 
-	public WebDriver getDriver() {
-		return driver;
+	public void setLanguage(String lang) {
+		Select select = new Select(getDriverManager().findElement("xpath", loginLanguageSelector));
+		select.selectByVisibleText(lang);
 	}
 
-	public void setDriver(WebDriver driver) {
-		this.driver = driver;
+	public String getSelectedLanguage() {
+		Select select = new Select(getDriverManager().findElement("xpath", loginLanguageSelector));
+		return select.getFirstSelectedOption().getText();
 	}
-
 }

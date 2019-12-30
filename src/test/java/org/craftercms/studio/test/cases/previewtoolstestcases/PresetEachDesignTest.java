@@ -1,17 +1,25 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.cases.previewtoolstestcases;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import org.craftercms.studio.test.pages.DashboardPage;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.pages.PreviewPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
 
 /**
  * 
@@ -19,43 +27,15 @@ import org.craftercms.studio.test.utils.WebDriverManager;
  *
  */
 
-public class PresetEachDesignTest {
-
-	private WebDriverManager driverManager;
-
-	private LoginPage loginPage;
-
-	private HomePage homePage;
-
-	private DashboardPage dashboardPage;
-
-	private PreviewPage previewPage;
-	
+public class PresetEachDesignTest extends StudioBaseTest{	
 	private String userName;
 	private String password;
 
-	@BeforeClass
+	@BeforeMethod
 	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		UIElementsPropertiesManager UIElementsPropertiesManager = new UIElementsPropertiesManager(
-				FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-		
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-		
-		this.loginPage = new LoginPage(driverManager, UIElementsPropertiesManager);
-		this.homePage = new HomePage(driverManager, UIElementsPropertiesManager);
-		this.dashboardPage = new DashboardPage(driverManager, UIElementsPropertiesManager);
-		this.previewPage = new PreviewPage(driverManager, UIElementsPropertiesManager);
-		
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
 
-	}
-
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
 	}
 
 	public void changeBodyToNotRequiredOnEntryContent() {
@@ -77,39 +57,39 @@ public class PresetEachDesignTest {
 		dashboardPage.clickOKButton();
 
 		// Switch to the iframe
-		driverManager.getDriver().switchTo().defaultContent();
-		driverManager.getDriver().switchTo()
-				.frame(this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+		getWebDriverManager().getDriver().switchTo().defaultContent();
+		getWebDriverManager().getDriver().switchTo()
+				.frame(this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
 						"cssSelector", ".studio-ice-dialog > .bd iframe"));					
 
 		// Set basics fields of the new content created
 		dashboardPage.setBasicFieldsOfNewContent("PRESET", "PRESET TESTING");
 
 		// Set the title of main content
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
 				"cssSelector", "#title > div > input").sendKeys("MainTitle");
 	
 
 		// click necessary to validate all fields required
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
 				"cssSelector", "#cstudio-form-expand-all").click();
 
 		// save and close
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
 				"id", "cstudioSaveAndClose").click();
 	
 		// Switch back to the dashboard page
-		driverManager.getDriver().switchTo().defaultContent();
+		getWebDriverManager().getDriver().switchTo().defaultContent();
 
 	}
 
 	public void presets() {
 
 		// open publishing channel combo
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
 				"cssSelector", "#medium-panel-elem > div.acn-accordion-header > a").click();
 
-		 String contentURL = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+		 String contentURL = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
 					"cssSelector", "#engineWindow").getText();
 		
 		 Assert.assertTrue(contentURL.contains(contentURL));
@@ -121,12 +101,12 @@ public class PresetEachDesignTest {
 
 		// login to application
 		loginPage.loginToCrafter(userName, password);
+		
+		//Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
 
 		// go to preview page
 		homePage.goToPreviewPage();
-
-		// reload page
-		driverManager.getDriver().navigate().refresh();
 
 		// body not required
 		changeBodyToNotRequiredOnEntryContent();
@@ -141,11 +121,11 @@ public class PresetEachDesignTest {
 		dashboardPage.expandHomeTree();
 
 		// select content
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
 				"cssSelector", "#ygtvlabelel3").click();
 		
 		// open tools
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed(
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed(
 				"cssSelector", "#acn-preview-tools-image").click();
 
 		// presets and asserts

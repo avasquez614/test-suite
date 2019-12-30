@@ -1,33 +1,36 @@
-/**
- * 
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package org.craftercms.studio.test.cases.generaltestcases;
 
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 import org.testng.Assert;
-import org.craftercms.studio.test.pages.DashboardPage;
-import org.craftercms.studio.test.pages.HomePage;
-import org.craftercms.studio.test.pages.LoginPage;
-import org.craftercms.studio.test.utils.ConstantsPropertiesManager;
-import org.craftercms.studio.test.utils.FilesLocations;
-import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
-import org.craftercms.studio.test.utils.WebDriverManager;
+import org.craftercms.studio.test.cases.StudioBaseTest;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 
 /**
  * @author luishernandez
  *
  */
-public class RenameParentPageAndPublishChildTest {
-
-	private WebDriverManager driverManager;
-	private LoginPage loginPage;
-	private UIElementsPropertiesManager UIElementsPropertiesManager;
-	private HomePage homePage;
-	private DashboardPage dashboardPage;
+public class RenameParentPageAndPublishChildTest extends StudioBaseTest{
 
 	private String userName;
 	private String password;
@@ -44,260 +47,247 @@ public class RenameParentPageAndPublishChildTest {
 	private String approveSubmitId;
 	private String unselectAllCheckBox;
 	private String createFormFrameElementCss;
-	private String createFormSaveAndCloseElementId;
-	private String toggleNavigationXpath;
-	private String homeExpansorXpath;
+	private String createFormSaveAndCloseElement;
 	private String createFormArticleMainTitleElementXPath;
-	
-	@BeforeClass
-	public void beforeTest() {
-		this.driverManager = new WebDriverManager();
-		this.UIElementsPropertiesManager = new UIElementsPropertiesManager(FilesLocations.UIELEMENTSPROPERTIESFILEPATH);
-		ConstantsPropertiesManager constantsPropertiesManager = new ConstantsPropertiesManager(
-				FilesLocations.CONSTANTSPROPERTIESFILEPATH);
-		this.driverManager.setConstantsPropertiesManager(constantsPropertiesManager);
-		this.loginPage = new LoginPage(driverManager, this.UIElementsPropertiesManager);
-		this.homePage = new HomePage(driverManager, this.UIElementsPropertiesManager);
-		this.dashboardPage = new DashboardPage(driverManager, this.UIElementsPropertiesManager);
+	private String siteDropdownListElementXPath;
+	private String categoryDrowpdownXpath;
 
+	@Parameters({"testId", "blueprint"})
+	@BeforeMethod
+	public void beforeTest(String testId, String blueprint) {
+		apiTestHelper.createSite(testId, "", blueprint);
 		this.parentPageName = "1";
 		this.childPage1Name = "2";
 		this.childPage2Name = "3";
 		this.parentPageNewName = "11";
+		
 		userName = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.username");
 		password = constantsPropertiesManager.getSharedExecutionConstants().getProperty("crafter.password");
 
-		homeContent = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		homeContent = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("dashboard.home_Content_Page");
-		this.parentPageLocator = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		this.parentPageLocator = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.crafter3loadtest.parentfolder") + this.parentPageName + "')]";
-		this.childPage1Locator = this.parentPageLocator + UIElementsPropertiesManager.getSharedUIElementsLocators()
+		this.childPage1Locator = this.parentPageLocator + uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.crafter3loadtest.childfolder") + this.childPage1Name + "')]";
-		this.childPage2Locator = this.childPage1Locator + UIElementsPropertiesManager.getSharedUIElementsLocators()
+		this.childPage2Locator = this.childPage1Locator + uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.crafter3loadtest.childfolder") + this.childPage2Name + "')]";
-		this.parentPageNewLocator = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		this.parentPageNewLocator = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.crafter3loadtest.parentfolder") + this.parentPageNewName + "')]";
-		siteDropdownElementXPath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		siteDropdownElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.sitedropdown");
-		approveSubmitId = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		approveSubmitId = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.renameparentpageandpublishchildtest.approvesubmitid");
-		unselectAllCheckBox = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		unselectAllCheckBox = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.renameparentpageandpublishchildtest.unselectallcheckbox");
-		createFormFrameElementCss = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormFrameElementCss = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.createformframe");
-		createFormArticleMainTitleElementXPath = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormArticleMainTitleElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.createformMainTitle");
-		createFormSaveAndCloseElementId = UIElementsPropertiesManager.getSharedUIElementsLocators()
+		createFormSaveAndCloseElement = uiElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("complexscenarios.general.saveandclosebutton");
-		toggleNavigationXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("complexscenarios.renameparentpageandpublishchildtest.togglenavigationelement");
-		homeExpansorXpath = UIElementsPropertiesManager.getSharedUIElementsLocators()
-				.getProperty("complexscenarios.general.homeexpansor");
+		siteDropdownListElementXPath = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.general.sitedropdownlielement");
+		categoryDrowpdownXpath = uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.general.createformcategorydropdown");
 	}
 
-	@AfterClass
-	public void afterTest() {
-		driverManager.closeConnection();
-	}
-
-	public void loginAndGoToSiteContentPagesStructure() {
+	public void loginAndGoToSiteContentPagesStructure(String siteId) {
 		// login to application
 		loginPage.loginToCrafter(userName, password);
+
+		// Wait for login page to close
+		getWebDriverManager().waitUntilLoginCloses();
+
 		// go to preview page
-		homePage.goToPreviewPage();
-		if (this.driverManager.isElementPresentByXpath(siteDropdownElementXPath))
-			this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", siteDropdownElementXPath).click();
+		homePage.goToPreviewPage(siteId);
+
+		if (this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",siteDropdownElementXPath).isDisplayed())
+			if (!(this.getWebDriverManager().waitUntilElementIsPresent("xpath", siteDropdownListElementXPath)
+					.getAttribute("class").contains("site-dropdown-open")))
+			this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", siteDropdownElementXPath).click();
 		else
 			throw new NoSuchElementException(
 					"Site creation process is taking too long time and the element was not found");
 	}
 
-	public void publishElement(WebElement element, String pageName) {
+	public void publishElement(String elementLocator, String pageName) {
 
-		dashboardPage.rightClickOnAContentPage(element);
+		dashboardPage.rightClickOnAContentPage(elementLocator);
 		// selecting the Publish option
-		dashboardPage.clickOnPublishOption();
+		getWebDriverManager().usingContextMenu(() -> {
+			dashboardPage.clickOnPublishOption();
+		},"Pages");
 		// moving to the publish dialog, clicking on Submit and confirm action
-		this.selectOnlyOnePageToPublish(pageName);
 		this.confirmPublishAction();
-		this.driverManager.isElementPresentAndClickableByXpath(toggleNavigationXpath);
+		this.getWebDriverManager().waitUntilSidebarOpens();
 	}
 
 	private void selectOnlyOnePageToPublish(String pageName) {
 		// Switch to the form
-		driverManager.getDriver().switchTo().activeElement();
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("id", approveSubmitId);
-		WebElement unSelectAllCheck = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		getWebDriverManager().getDriver().switchTo().activeElement();
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("id", approveSubmitId);
+		WebElement unSelectAllCheck = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				unselectAllCheckBox);
 		unSelectAllCheck.click();
-		
+
 		String pageNameCheckLocator = ".//table[@class='item-listing scroll-body']/tbody/tr/td/div/span[contains(text(),'"
 				+ pageName + "')]/../../../td/input";
-		WebElement pageNameCheck = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath",
+		WebElement pageNameCheck = this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath",
 				pageNameCheckLocator);
 		pageNameCheck.click();
 	}
 
 	public void confirmPublishAction() {
 		// Switch to the form
-		driverManager.getDriver().switchTo().activeElement();
+		getWebDriverManager().getDriver().switchTo().activeElement();
 		// Click on Publish button
 		dashboardPage.clickApproveAndPublishSubmitButton();
-		
 		// switch to default content
-		driverManager.getDriver().switchTo().defaultContent();
+		getWebDriverManager().getDriver().switchTo().defaultContent();
 	}
 
 	public void createNewPageArticleContent(String pageName) {
 
-		// Switch to the iframe
-		driverManager.getDriver().switchTo().defaultContent();
+		getWebDriverManager().usingCrafterForm("cssSelector", createFormFrameElementCss, () -> {
+			// Set basics fields of the new content created
+			dashboardPage.setBasicFieldsOfNewPageArticleContent(pageName, pageName, pageName);
 
-		driverManager.getDriver().switchTo().frame(this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayed("cssSelector", createFormFrameElementCss));
-		this.driverManager.isElementPresentAndClickableBycssSelector(createFormFrameElementCss);
-		// creating random values for URL field and InternalName field
-		String randomURL = pageName;
-		String randomInternalName = pageName;
-		// Set basics fields of the new content created
-		dashboardPage.setBasicFieldsOfNewPageArticleContent(randomURL, randomInternalName, pageName);
+			// Set the title of main content
+			this.getWebDriverManager().scrollDown();
+			getWebDriverManager().sendText("xpath", createFormArticleMainTitleElementXPath, pageName);
+			
+			WebElement categoryDropdown = this.getWebDriverManager()
+					.driverWaitUntilElementIsPresentAndDisplayed("xpath", categoryDrowpdownXpath);
+			Select select = new Select(categoryDropdown);
+			select.selectByValue("style");
 
-		// Set the title of main content
-		//this.driverManager.scrollDown();
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", createFormArticleMainTitleElementXPath)
-				.sendKeys(pageName);
-		// save and close
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", createFormSaveAndCloseElementId).click();
+			// save and close
+			this.getWebDriverManager().waitForAnimation();
+			this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", createFormSaveAndCloseElement)
+					.click();
+		});
+		this.getWebDriverManager().waitUntilSidebarOpens();
 
-		// Switch back to the dashboard page
-		driverManager.getDriver().switchTo().defaultContent();
 	}
 
 	public void editPageArticleContent(String pageName) {
 		// Switch to the iframe
-		driverManager.getDriver().switchTo().defaultContent();
-		driverManager.getDriver().switchTo().frame(this.driverManager
-				.driverWaitUntilElementIsPresentAndDisplayed("cssSelector",createFormFrameElementCss ));
-		this.driverManager.isElementPresentAndClickableBycssSelector(createFormFrameElementCss);
+		this.getWebDriverManager().waitForAnimation();
 
-		// creating random values for URL field and InternalName field
-		String randomInternalName = pageName;
-		// Set basics fields of the new content created
-		dashboardPage.updateBasicFieldsOfNewPageArticleContent(randomInternalName, pageName);
+		getWebDriverManager().usingCrafterForm("cssSelector", createFormFrameElementCss, () -> {
+			// creating random values for URL field and InternalName field
+			String randomInternalName = pageName;
+			// Set basics fields of the new content created
+			dashboardPage.updateBasicFieldsOfNewPageArticleContent(randomInternalName, pageName);
+			// Set the title of main content
+			this.getWebDriverManager().scrollUp();
+			this.getWebDriverManager()
+					.driverWaitUntilElementIsPresentAndDisplayed("xpath", createFormArticleMainTitleElementXPath)
+					.sendKeys(pageName);
+			// save and close
 
-		// Set the title of main content
-		this.driverManager.scrollUp();
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", createFormArticleMainTitleElementXPath)
-				.sendKeys(pageName);
-
-		// save and close
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("id", createFormSaveAndCloseElementId).click();
-		// Switch back to the dashboard page
-		driverManager.getDriver().switchTo().defaultContent();
+			this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", createFormSaveAndCloseElement)
+					.click();
+		});
+		this.getWebDriverManager().waitUntilSidebarOpens();
 	}
 
-	public void createPageCategoryLandingPage(WebElement folderWebElement, String pageName) {
-		dashboardPage.rightClickCreatePageOnAPresentPage(folderWebElement);
+	public void createPageCategoryLandingPage(String folderWebElementSelector, String pageName) {
+		dashboardPage.rightClickCreatePageOnAPresentPage(folderWebElementSelector);
 		// selecting Page Category Landing Page
 		dashboardPage.selectPageArticleContentType();
 		// click on the Ok button to confirm the select content type above
 		dashboardPage.clickOKButton();
 		// creating new Page Article into the empty folder
-		driverManager.getDriver().switchTo().defaultContent();
+		getWebDriverManager().getDriver().switchTo().defaultContent();
 		this.createNewPageArticleContent(pageName);
-		this.driverManager.isElementPresentAndClickableByXpath(toggleNavigationXpath);
 	}
 
 	public void testScenario() {
-		WebElement homeParent = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", homeContent);
-		this.createPageCategoryLandingPage(homeParent, parentPageName);
+		this.createPageCategoryLandingPage(homeContent, parentPageName);
 
-		this.driverManager.isElementPresentAndClickableByXpath(homeExpansorXpath);
-		WebElement expansorElementForHome = this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath",
-				homeExpansorXpath);
-		expansorElementForHome.click();
+		Assert.assertTrue(getWebDriverManager().waitUntilElementIsClickable("xpath", parentPageLocator).isDisplayed());
 
-		WebElement parentPage;
-		WebElement childPage1;
-		WebElement childPage2;
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", parentPageLocator);
 
-		Assert.assertTrue(driverManager.isElementPresentByXpath(parentPageLocator));
-		parentPage = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", parentPageLocator);
-		this.createPageCategoryLandingPage(parentPage, childPage1Name);
-		//driverManager.waitUntilPageLoad();
+		this.createPageCategoryLandingPage(parentPageLocator, childPage1Name);
+
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayed("xpath", childPage1Locator);
+		this.createPageCategoryLandingPage(childPage1Locator, childPage2Name);
+		getWebDriverManager().getDriver().navigate().refresh();
 		
-		childPage1 = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", childPage1Locator);
-		this.createPageCategoryLandingPage(childPage1, childPage2Name);
-		//driverManager.waitUntilPageLoad();
-		
-		//childPage2 = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed("xpath", childPage2Locator);
+		this.getWebDriverManager().waitForAnimation();
+		this.getWebDriverManager().waitUntilSidebarOpens();
+		this.renamePage(parentPageLocator, parentPageNewName);
 
-		this.renamePage(parentPage, parentPageNewName);
-		//driverManager.waitUntilPageLoad();
-		
-		this.childPage1Locator = this.parentPageNewLocator + UIElementsPropertiesManager.getSharedUIElementsLocators()
-		.getProperty("complexscenarios.crafter3loadtest.childfolder") + this.childPage1Name + "')]";
-		this.childPage2Locator = this.childPage1Locator + UIElementsPropertiesManager.getSharedUIElementsLocators()
-		.getProperty("complexscenarios.crafter3loadtest.childfolder") + this.childPage2Name + "')]";
-		
-		this.driverManager.isElementPresentAndClickableByXpath(childPage2Locator);
-		this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", childPage2Locator).click();
+		this.childPage1Locator = this.parentPageNewLocator + uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.crafter3loadtest.childfolder") + this.childPage1Name + "')]";
 
-		childPage2 = this.driverManager.driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", childPage2Locator);
-		this.publishElement(childPage2, childPage2Name);
-        
+
+		this.childPage2Locator = this.childPage1Locator + uiElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("complexscenarios.crafter3loadtest.childfolder") + this.childPage2Name + "')]";
+
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", childPage2Locator).click();
+		this.getWebDriverManager().driverWaitUntilElementIsPresentAndDisplayedAndClickable("xpath", childPage2Locator);
+
+		this.publishElement(childPage2Locator, childPage2Name);
 		this.verifyPublishedItemsOnDashboard();
 
 	}
 
 	private void verifyPublishedItemsOnDashboard() {
-		
+
 		String iconNeverPublishedForParentPage = this.parentPageNewLocator
 				+ "/div/span/span[contains(@class,'never-published')]";
 		String iconNeverPublishedForChild1Page = this.childPage1Locator
 				+ "/div/span/span[contains(@class,'never-published')]";
 
-		this.driverManager.waitUntilPageLoad();
-		
-		boolean isPresent = this.driverManager.isElementPresentAndClickableByXpath(iconNeverPublishedForChild1Page);
-		
+		this.getWebDriverManager().waitUntilPageLoad();
+		this.getWebDriverManager().waitForAnimation();
+
+		boolean isPresent = this.getWebDriverManager().isElementPresentAndClickableByXpath(iconNeverPublishedForChild1Page);
+
 		while (isPresent) {
-			this.driverManager.waitUntilPageLoad();
-			System.out.print("not yet");
-			driverManager.getDriver().navigate().refresh();
-			isPresent = this.driverManager.isElementPresentAndClickableByXpath(iconNeverPublishedForChild1Page);
+			this.getWebDriverManager().waitUntilPageLoad();
+			getWebDriverManager().getDriver().navigate().refresh();
+			isPresent = this.getWebDriverManager().isElementPresentAndClickableByXpath(iconNeverPublishedForChild1Page);
 		}
 
-		Assert.assertFalse(this.driverManager.isElementPresentAndClickableByXpath(iconNeverPublishedForParentPage));
-		Assert.assertFalse(this.driverManager.isElementPresentAndClickableByXpath(iconNeverPublishedForChild1Page));
+		Assert.assertFalse(this.getWebDriverManager().isElementPresentAndClickableByXpath(iconNeverPublishedForParentPage));
+		Assert.assertFalse(this.getWebDriverManager().isElementPresentAndClickableByXpath(iconNeverPublishedForChild1Page));
 
 	}
 
 	public void confirmDeleteAction() {
 
 		// Switch to the form
-		driverManager.getDriver().switchTo().activeElement();
+		getWebDriverManager().getDriver().switchTo().activeElement();
 		// Click on delete button
 		dashboardPage.clickDeleteDeleteSubmitButton();
-		driverManager.getDriver().switchTo().defaultContent();
+		getWebDriverManager().getDriver().switchTo().defaultContent();
 	}
 
-	private void renamePage(WebElement parentPage, String newPageName) {
-		dashboardPage.rightClickEditOnAPresentPage(parentPage);
+	private void renamePage(String pageLocator, String newPageName) {
+		dashboardPage.rightClickEditOnAPresentPage(pageLocator);
 		// creating new Page Article into the empty folder
 		this.editPageArticleContent(newPageName);
 	}
 
+	@Parameters({"testId"})
 	@Test
-	public void renameParentPageAndPublishChildTest() {
+	public void renameParentPageAndPublishChildTest(String testId) {
 		// Related to the bug:
 		// https://github.com/craftercms/craftercms/issues/1248
-		this.loginAndGoToSiteContentPagesStructure();
-
-		// expand pages folder
-		dashboardPage.expandPagesTree();
+		this.loginAndGoToSiteContentPagesStructure(testId);
 
 		// create the folders structure according with script
 		this.testScenario();
+	}
+
+	@Parameters({"testId"})
+	@AfterMethod(alwaysRun = true)
+	public void afterTest(String testId) {
+		apiTestHelper.deleteSite(testId);
 	}
 }

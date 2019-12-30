@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.craftercms.studio.test.pages;
 
 import org.craftercms.studio.test.utils.UIElementsPropertiesManager;
@@ -14,17 +30,16 @@ import org.openqa.selenium.WebElement;
 public class AccountManagementPage {
 
 	private WebDriverManager driverManager;
-	private WebDriver driver;
 	private String currentPassword;
 	private String newPassword;
 	private String confirmPassword;
 	private String submitButton;
+	private String accountManagementTitle;
 	
 	public AccountManagementPage(WebDriverManager driverManager,
 			UIElementsPropertiesManager UIElementsPropertiesManager) {
 
 		this.driverManager = driverManager;
-		this.driver = this.driverManager.getDriver();
 		currentPassword = UIElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("accountManagement.currentPass");
 		newPassword = UIElementsPropertiesManager.getSharedUIElementsLocators()
@@ -33,16 +48,13 @@ public class AccountManagementPage {
 				.getProperty("accountManagement.confirmPass");
 		submitButton = UIElementsPropertiesManager.getSharedUIElementsLocators()
 				.getProperty("accountManagement.submitButton");
-	}
-
-	public AccountManagementPage(WebDriver driver) {
-		this.driver = driver;
-
+		accountManagementTitle = UIElementsPropertiesManager.getSharedUIElementsLocators()
+				.getProperty("accountManagement.pageTitle");
 	}
 
 	// Set the current pass
 	public void setCurrentPassword(String strCurrentPass) {
-		WebElement currentPass = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "id",
+		WebElement currentPass = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "xpath",
 				currentPassword);
 		currentPass.sendKeys(strCurrentPass);
 
@@ -50,20 +62,19 @@ public class AccountManagementPage {
 
 	// Set the new pass
 	public void setNewPassword(String strNewPassword) {
-		WebElement newPass = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "id", newPassword);
+		WebElement newPass = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "xpath", newPassword);
 		newPass.sendKeys(strNewPassword);
 
 	}
 
 	// Set the new pass confirmation
 	public void setConfirmNewPassword(String strConfNewPassword) {
-		WebElement confPass = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "id", confirmPassword);
+		WebElement confPass = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "xpath", confirmPassword);
 		confPass.sendKeys(strConfNewPassword);
 	}
 
 	// Click on submit
 	public void clickSubmit() {
-		this.driverManager.isElementPresentAndClickableByXpath(submitButton);
 		WebElement submitbtn = this.driverManager.driverWaitUntilElementIsPresentAndDisplayed( "xpath",
 				submitButton);
 		submitbtn.click();
@@ -79,6 +90,7 @@ public class AccountManagementPage {
 		this.setConfirmNewPassword(strConfNewPassword);
 		// Click Login button
 		this.clickSubmit();
+		
 	}
 
 	public WebDriverManager getDriverManager() {
@@ -88,13 +100,9 @@ public class AccountManagementPage {
 	public void setDriverManager(WebDriverManager driverManager) {
 		this.driverManager = driverManager;
 	}
-
-	public WebDriver getDriver() {
-		return driver;
-	}
-
-	public void setDriver(WebDriver driver) {
-		this.driver = driver;
+	
+	public boolean isAccountManagementTitlePresent() {
+		return this.driverManager.isElementPresentByXpath(accountManagementTitle);
 	}
 
 }

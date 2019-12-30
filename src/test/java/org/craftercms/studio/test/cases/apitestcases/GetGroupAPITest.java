@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2007-2019 Crafter Software Corporation. All Rights Reserved.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.craftercms.studio.test.cases.apitestcases;
 
 import org.craftercms.studio.test.api.objects.GroupManagementAPI;
@@ -5,7 +22,7 @@ import org.craftercms.studio.test.api.objects.SecurityAPI;
 import org.craftercms.studio.test.api.objects.SiteManagementAPI;
 import org.craftercms.studio.test.utils.APIConnectionManager;
 import org.craftercms.studio.test.utils.JsonTester;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -36,25 +53,35 @@ public class GetGroupAPITest {
 		groupManagementAPI.testCreateStudioGroup01(siteManagementAPI.getSiteId());
 	}
 
-	@Test(priority = 1)
+	@Test(priority = 1,groups={"getGroup"})
 	public void testGetGroup() {
 		groupManagementAPI.testGetGroup(siteManagementAPI.getSiteId());
 	}
 
-	@Test(priority = 2)
-	public void testInvalidParameter() {
+	@Test(priority = 2,groups={"getGroup"})
+	public void testGetGroupInvalidParameter() {
 		groupManagementAPI.testGetGroupInvalidParameter(siteManagementAPI.getSiteId());
 	}
 
-	@Test(priority = 3)
-	public void testGroupNotFound() {
+	@Test(priority = 3,groups={"getGroup"})
+	public void testGetGroupGroupNotFound() {
 		groupManagementAPI.testGetGroupGroupNotFound(siteManagementAPI.getSiteId());
 	}
+	
+	@Test(priority = 4,groups={"getGroup"})
+	public void testGetGroupSiteNotFound() {
+		groupManagementAPI.testGetGroupSiteNotFound(siteManagementAPI.getSiteId());
+	}
 
-	@AfterTest
+	@AfterGroups(groups={"getGroup"})
 	public void afterTest() {
 		siteManagementAPI.testDeleteSite(siteId);
 		securityAPI.logOutFromStudioUsingAPICall();
+	}
+	
+	@Test(dependsOnGroups={"getGroup"})
+	public void testGetGroupUnauthorized(){
+		groupManagementAPI.testGetGroupUnauthorized(siteManagementAPI.getSiteId());
 	}
 
 }
